@@ -1,0 +1,15 @@
+name: Functie voorstellen
+description: Stel een verbetering voor de moskeebeheer-app voor.
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: Welke gebruiker heeft welk probleem?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Wanneer is de functie goed genoeg?
+    validations:
+      required: true

@@ -1,0 +1,20 @@
+name: Probleem melden
+description: Meld een fout met fictieve voorbeeldgegevens.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Wat gaat er mis?
+      description: Deel geen persoonsgegevens, wachtwoorden of ledenexports.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Stappen om het probleem te herhalen
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Verwachte werking
