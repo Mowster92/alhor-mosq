@@ -1,14 +1,14 @@
 {
   "app_key": "vrijdagpreek",
-  "base_commit": "eecbc6c7f529079ca4262f9ee436aab3d7a76e78",
-  "prepared_at": "2026-10-12T01:40:28.001080+00:00",
+  "base_commit": "d8c26236bebbad71d2740fed9498f375d0f4d52b",
+  "prepared_at": "2026-10-12T17:24:10.270Z",
   "schema": "alhor-app-candidate/v1",
-  "source_digest": "e39f6cea5648e7a0f50bec20e08fac6aa98d7a3b55771fed9c930d154dea9251",
+  "source_digest": "98dd202c2aabaf3c9b681bbfccc72086108d5dc11651bc13df855774e86b84a2",
   "source_manifest": {
     ".gitignore": "9f2316bf613d5045d39431352d2f4029aecfa562e7934f92f880e7c5e312fd0f",
     "PORTAL-UPDATE-20260928.md": "5dfef370b15d14505279b5704475f498ee63775d1fa70c44d63f8224b1065926",
     "PROJECT.md": "695cc6ef547b46045dd7765011ff6a1d53c848d7f1fea5ba3f09d628a4f22588",
-    "README.md": "76e4e9d1c180e48ac4473baa2de790512b181f603313ec2bd65282501e5d3559",
+    "README.md": "5302f177025a712187d75cc9b31e7becede2af6948c184e2347e44fc5a076271",
     "START-LIVE.ps1": "75b7e3fc9db63badd87dfb945a7aaf1ef6cd95cce6cfe51e173a3c0ba1f59e2a",
     "START-WINDOWS.cmd": "e727822e50c067018b8caa6fe578bcbaec30bbf9f7a5d102a66c1a0a72545375",
     "app.js": "83375abd7400d79d68107fa90d0f63b56fbeef639ccbeb2e88960d46527f15ff",
@@ -31,5 +31,5 @@
     "test/server.test.mjs": "c41842a76f21f6eb4fa6b3d176060e97faa125a85afe9f828d2ae4df67dba267",
     "test/ui.test.mjs": "84f417bd7f6d201ca53c351322dc192b39aa9b1b7bb5f10bce6d5a42eed7c0fb"
   },
-  "version": "vrijdagpreek-mosque-library-20261012-03"
+  "version": "vrijdagpreek-mosque-library-20261012-04"
 }
