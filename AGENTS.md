@@ -21,8 +21,13 @@ Lees `docs/PROJECT.md` voor de actuele scope en open keuzes.
 - Ontwerp toegang per rol en controleer die op de server zodra er een backend is.
 - Leg vóór livegang vast hoe bewaartermijnen, back-ups en herstel werken.
 
-## Huidige grens
+## Actuele toepassing — 12 oktober2026
 
-De eerste opdracht betreft repository- en Codex-inrichting tot circa 90%.
-Een werkende applicatie, hosting, juridische licentiekeuze en definitieve
-gebruikersrollen vallen onder de volgende productbeslissingen.
+Mo heeft de lokale Vrijdagpreek-integratie in dit bestaande repository
+goedgekeurd; Said's bijdrage en de moskeebeheer-basis blijven behouden.
+Actuele bron: `apps/vrijdagpreek`; start: `START-VRIJDAGPREEK.cmd`.
+Controle in de appmap: `npm test` en `npm run check`, plus de repositorycontrole.
+Gebruik de bestaande operator/publieksroute en lokale opslag. Planning blijft
+in Codex; de ALHOR-feedbackroute draagt context, geen ondertitels of audio.
+Deze lokale opdracht geeft geen Git-publicatie, live/provider-, microfoon-
+of ledengegevensmandaat. De oudere inrichtingsopdracht is historie.

@@ -2,8 +2,15 @@
 
 Werkrepository voor een moskeebeheer-app van Said Alhor.
 
-Status: de repositorybasis is ingericht. Er is nog geen uitvoerbare app. De
-productkeuzes en technische stack worden vastgesteld voordat de bouw start.
+De eerste werkende toepassing is **Vrijdagpreek**, onder `apps/vrijdagpreek`:
+een lokale operator en publieksweergave voor Arabisch/Nederlandse ondertitels.
+Start `START-VRIJDAGPREEK.cmd`. Je kunt tekstparen voorbereiden, op deze pc
+opslaan, corrigeren en handmatig tonen. Vaste voorbeelden blijven beschikbaar.
+Dit is geen bewijs van live spraakvertaling of een productievoorziening.
+
+Mo koos deze bronintegratie op 12 oktober2026. Said Alhor's werk en de
+moskeebeheer-basis blijven behouden. De overige modules hieronder zijn nog
+voorstellen. De lokale wijzigingen zijn niet gepusht of gepubliceerd.
 
 ## Beginnen
 

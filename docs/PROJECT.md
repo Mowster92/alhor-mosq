@@ -1,5 +1,32 @@
 # Projectbasis
 
+## Gekozen toepassing — 12 oktober2026
+
+Mo, repositoryhouder Mowster92, heeft Vrijdagpreek als werkende toepassing
+binnen ALHOR Mosque gekozen. Said Alhor's bestaande werk en productbijdrage
+blijven herkenbaar. Bron: `apps/vrijdagpreek`; lokale ingang:
+`START-VRIJDAGPREEK.cmd`, operator127.0.0.1:8080, aparte publieksweergave.
+
+Hergebruik de bestaande Node-app, operatorbeveiliging, SDK-lockfile en
+Start/Stop/publieksweergave. Deze stap voegt voorbereiding en handmatige
+presentatie van maximaal10 Arabisch/Nederlandse tekstparen toe. Bewaarde
+voorbereiding staat uitsluitend lokaal in `apps/vrijdagpreek/data/`, buiten
+Git; eerdere bron/resultaten blijven herstelbaar. Er is geen ledenimport,
+nieuwe cloudverbinding, betaalde dienst of publicatie. De voorstellen hieronder
+worden hiermee niet gebouwd of alsnog goedgekeurd.
+
+De lokale vervolgverbetering van 12 oktober maakt meerdere voorbereidingen
+bruikbaar: maximaal20 bewaarde preken, elk met maximaal10 tekstparen. De eerdere
+enkele voorbereiding wordt bij het lezen als eerste keuze getoond; het oude
+`preparation.json` blijft ongewijzigd en nieuwe opslag gebeurt atomair in
+`preparations.json`. Een nieuwe voorbeeldpreek begint onopgeslagen. Alleen de
+gekozen preek wordt bij Opslaan bijgewerkt. Dit verandert geen publiekstoegang,
+microfoon-/providerroute of moskeebeheer-module.
+
+Controle: `python scripts/check_repository.py`, daarna in `apps/vrijdagpreek`:
+`npm test` en `npm run check`. Live audio en echte apparatuur blijven apart
+te bewijzen. De oude lokale translator-map is geen tweede actieve runtime.
+
 ## Bevestigd
 
 - Eigenaar: Said Alhor; GitHub-account: Mowster92.
