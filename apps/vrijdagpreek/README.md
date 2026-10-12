@@ -118,4 +118,3 @@ From fixed examples, **Verbeter deze app** pauses the example, leaves this tab/a
 Return to Vrijdagpreek through the saved record. Only a paused, known fixture is shown from the same running app's existing state; returning does not start audio or a provider. A server restart clears this transient state. Normal Start/Stop/restart/audience behavior remains. Standalone entry without an ALHOR session uses one explicit click through the existing local-owner entrance; no account or authentication setting changes.
 
 Exact portal/Node candidates and checks: `projects/alhor-portal/results/app-improvement-20261012/RESULT.md`. No publication or live-provider/microphone calls in this delivery.
-
