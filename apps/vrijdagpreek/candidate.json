@@ -3,14 +3,14 @@
   "base_commit": "d8c26236bebbad71d2740fed9498f375d0f4d52b",
   "prepared_at": "2026-10-12T17:24:10.270Z",
   "schema": "alhor-app-candidate/v1",
-  "source_digest": "98dd202c2aabaf3c9b681bbfccc72086108d5dc11651bc13df855774e86b84a2",
+  "source_digest": "aa2176b7cf84aaa9c10e3c8dbae8cc90972b8259033f58f26fb276d0762a8e4c",
   "source_manifest": {
     ".gitignore": "9f2316bf613d5045d39431352d2f4029aecfa562e7934f92f880e7c5e312fd0f",
     "PORTAL-UPDATE-20260928.md": "5dfef370b15d14505279b5704475f498ee63775d1fa70c44d63f8224b1065926",
     "PROJECT.md": "695cc6ef547b46045dd7765011ff6a1d53c848d7f1fea5ba3f09d628a4f22588",
-    "README.md": "5302f177025a712187d75cc9b31e7becede2af6948c184e2347e44fc5a076271",
-    "START-LIVE.ps1": "75b7e3fc9db63badd87dfb945a7aaf1ef6cd95cce6cfe51e173a3c0ba1f59e2a",
-    "START-WINDOWS.cmd": "e727822e50c067018b8caa6fe578bcbaec30bbf9f7a5d102a66c1a0a72545375",
+    "README.md": "003d43ee5285e818842ce277a389229ae8ed99515fbd7cc85aec1530c66431bc",
+    "START-LIVE.ps1": "34840e6cacdf59c8b2bed4849d5964fc4fcef9232dfb2d6f8d7874afa9ce33b5",
+    "START-WINDOWS.cmd": "59323e70593726f8cda10516e9fe677b030b7d39d32795df9915536b64b08df4",
     "app.js": "83375abd7400d79d68107fa90d0f63b56fbeef639ccbeb2e88960d46527f15ff",
     "candidate.mjs": "b7c1eaa64eed2b99ed88ea15e75b5e5e1135d854bab48162893a848b500c8e2f",
     "display.html": "f45d91d2985678a30ab634a20824f580c3af5346ced73d51f4ea4dc3cf118501",
@@ -25,11 +25,11 @@
     "styles.css": "6d11b7f9cd37ffa9993d462ee4e6755ebc1d1483c1b1bd10e5166aada400ca56",
     "test/candidate.test.mjs": "9752a3452a8e97e3e808f63d08ffce449fe316111bb2c970cb94aae5788c7b28",
     "test/example-context.test.mjs": "95c2f83448c1b058fe186a44e4f02a7b90d7ecb540f5677ac42ffa4bff4f7ba0",
-    "test/lease.test.mjs": "ec18682a3a432baecdeb93c58215e436d9c338134504e1d55582907530d0bd5f",
+    "test/lease.test.mjs": "a65e2def65d6853a3916fce9cfe1f38243f5286a229c26ed49b2a91005fa8554",
     "test/live.test.mjs": "e27ea7a4226c93e084879912426e07d8f6c1a1071753bd5e1c80a4b461227b33",
     "test/preparation.test.mjs": "a10fc4e4c8098b1ae2cbcc06f6ca3865e43735ad0e08fd1c6c88239ce615033b",
     "test/server.test.mjs": "c41842a76f21f6eb4fa6b3d176060e97faa125a85afe9f828d2ae4df67dba267",
-    "test/ui.test.mjs": "84f417bd7f6d201ca53c351322dc192b39aa9b1b7bb5f10bce6d5a42eed7c0fb"
+    "test/ui.test.mjs": "7fd87a915c85334b7b856063bee5a3da83fa8dbee3bd1bd146b662238069d979"
   },
   "version": "vrijdagpreek-mosque-library-20261012-04"
 }
