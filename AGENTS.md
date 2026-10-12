@@ -29,5 +29,6 @@ Actuele bron: `apps/vrijdagpreek`; start: `START-VRIJDAGPREEK.cmd`.
 Controle in de appmap: `npm test` en `npm run check`, plus de repositorycontrole.
 Gebruik de bestaande operator/publieksroute en lokale opslag. Planning blijft
 in Codex; de ALHOR-feedbackroute draagt context, geen ondertitels of audio.
-Deze lokale opdracht geeft geen Git-publicatie, live/provider-, microfoon-
-of ledengegevensmandaat. De oudere inrichtingsopdracht is historie.
+Git-bronpublicatie, live/providergebruik, microfoon en ledengegevens blijven
+afzonderlijke grenzen; bronpublicatie of een merge activeert die niet. De
+oudere inrichtingsopdracht is historie.

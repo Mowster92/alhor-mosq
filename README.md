@@ -8,9 +8,11 @@ Start `START-VRIJDAGPREEK.cmd`. Je kunt tekstparen voorbereiden, op deze pc
 opslaan, corrigeren en handmatig tonen. Vaste voorbeelden blijven beschikbaar.
 Dit is geen bewijs van live spraakvertaling of een productievoorziening.
 
-Mo koos deze bronintegratie op 12 oktober2026. Said Alhor's werk en de
+Mo koos deze bronintegratie op 12 oktober 2026. Said Alhor's werk en de
 moskeebeheer-basis blijven behouden. De overige modules hieronder zijn nog
-voorstellen. De lokale wijzigingen zijn niet gepusht of gepubliceerd.
+voorstellen. Bronpublicatie of een merge start geen dienst en bewijst geen live
+spraakvertaling; provider-, microfoon- en ledengegevensgebruik blijven aparte
+grenzen.
 
 ## Beginnen
 
