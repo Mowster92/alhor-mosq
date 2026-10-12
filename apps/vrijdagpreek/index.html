@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Vrijdagpreek · operator</title><link rel="stylesheet" href="styles.css"></head>
+<body><main>
+<a class="platform-return" href="http://127.0.0.1:19818/">← ALHOR home</a>
+<button id="improve-app" type="button">Verbeter deze app</button>
+<p class="notice">De voorbeelden pauzeren; ALHOR opent in een aparte tab. Geen audio of ondertiteling wordt meegestuurd.</p>
+<header class="topbar"><div><p class="mosque-brand"><svg aria-hidden="true" viewBox="0 0 32 32"><path d="M22 4a12 12 0 1 0 6 19A11 11 0 0 1 22 4Z"/><path d="m26 5 1.2 2.6 2.8.4-2 2 .4 2.8-2.4-1.3-2.4 1.3.4-2.8-2-2 2.8-.4Z"/></svg>alhor <span>Mosque</span></p><h1>Vrijdagpreek</h1></div><strong id="mode-label">DEMO</strong></header>
+<p id="candidate-status" class="notice">Versie nog niet gecontroleerd.</p>
+<p id="status" role="status" aria-live="polite">Laden…</p>
+<section class="card panel preparation"><h2>Bereid je ondertitels voor</h2><p>Jouw tekst, handmatig getoond. Geen automatische vertaling, microfoon of cloud.</p>
+<label>Bewaarde voorbereidingen <select id="saved-preparations" aria-label="Bewaarde voorbereidingen"><option value="">Nieuwe voorbereiding</option></select></label>
+<div class="buttons"><button id="new-preparation" class="secondary" type="button">Nieuwe voorbereiding</button><button id="example-preparation" class="quiet" type="button">Nieuwe voorbereiding met voorbeeld</button></div>
+<label>Titel <input id="preparation-title" maxlength="100" value="Nieuwe voorbereiding"></label>
+<div class="preparation-layout"><div><label>Tekstpaar <select id="preparation-cue" aria-label="Tekstpaar"><option value="0">1 / 1</option></select></label>
+<label>Arabisch <textarea id="preparation-arabic" lang="ar" dir="rtl" maxlength="600" rows="3"></textarea></label>
+<label>Nederlands <textarea id="preparation-dutch" maxlength="600" rows="3" placeholder="Wat moet het publiek lezen?"></textarea></label></div>
+<div class="preparation-help"><p id="preparation-progress" aria-live="polite">Nog niet opgeslagen.</p><div class="buttons"><button id="add-cue" class="secondary">Tekstpaar toevoegen</button><button id="remove-cue" class="quiet">Tekstpaar verwijderen</button></div><p>Maximaal 10 tekstparen per voorbereiding en 20 voorbereidingen op deze pc. Opslaan wijzigt alleen de gekozen voorbereiding. Een nieuwe voorbereiding bewaart de bestaande; het publiekscherm verandert pas als je tekst toont.</p></div></div>
+<div class="buttons"><button id="save-preparation" class="secondary">Voorbereiding opslaan</button><button id="present-preparation">Opslaan en presenteren</button></div>
+<div class="buttons presentation-controls"><button id="previous-cue" class="secondary">Vorige</button><button id="show-cue">Toon dit tekstpaar</button><button id="next-cue" class="secondary">Volgende</button></div></section>
+<section class="card panel"><h2>Bekijk de ondertiteling</h2><p>Vier vaste Arabische/Nederlandse tekstparen, zonder microfoon of cloud.</p>
+<label><input type="checkbox" id="demo-audio"> Lokale Arabische demo-stem, indien beschikbaar (anders stil)</label>
+<div class="buttons"><button id="start">Start demo</button><button id="restart" class="secondary">Start demo opnieuw</button></div></section>
+<details class="audio-settings"><summary>Microfoon en livevertaling instellen</summary>
+<p class="notice">Automatische vertalingen kunnen fouten bevatten, ook in religieuze teksten. Laat een deskundige mens meelezen. Geen gegarandeerde vertraging of juistheid.</p>
+<section class="card panel"><h2>Microfoon lokaal testen</h2><p>Alleen audioapparaten die Windows aan deze browser beschikbaar stelt. Geen ASIO-kanaalselectie. Ontbreekt Qu-24? Stop hier en lees README, hoofdstuk Qu-24.</p>
+<button id="list-mics">Toestemming vragen / lijst vernieuwen</button>
+<label>Audio-invoer <select id="device"><option value="">Vernieuw eerst de lijst</option></select></label>
+<button id="test-mic" class="secondary">Start lokale niveautest</button>
+<label>Niveau (indicatief) <meter id="level" min="0" max="100" value="0"></meter></label><p>Geen opnamebestand, cloud of afluistergeluid bij deze test. Druk Stop vóór een nieuwe modus.</p></section>
+<section class="card panel"><h2>Live Arabisch → Nederlands (Azure)</h2><p id="azure-state"></p>
+<label>Arabische herkenningstaal <select id="language"><option value="ar-SA">Arabisch · Saudi-Arabië (ar-SA)</option><option value="ar-MA">Arabisch · Marokko (ar-MA)</option><option value="ar-EG">Arabisch · Egypte (ar-EG)</option></select></label>
+<label><input id="consent" type="checkbox"> Ik heb toestemming om deze audio naar Microsoft Azure te sturen en accepteer mogelijke kosten.</label>
+<button id="live-start">Start live met cloud</button><p>Audio wordt alleen na deze start verstuurd. Geen TTS of luidsprekerterugvoer in live. Stop beëindigt capture; opnieuw starten vraagt een nieuwe sessie.</p></section>
+</details>
+<section class="card panel buttons"><button id="stop">Stop / pauze alle audio</button><button id="clear" class="secondary">Wis ondertitel</button><button id="open-display" class="secondary">Open publiekscherm</button></section>
+<section class="operator-grid"><article class="card transcript"><p class="label">ARABISCH · DEMO OF HERKENNING</p><p id="arabic" class="arabic" lang="ar" dir="rtl">—</p></article><article class="card translation"><p class="label">NEDERLANDS</p><p id="dutch" class="dutch">Klaar om te beginnen.</p></article></section>
+</main><script src="sdk.js"></script><script type="module" src="app.js"></script></body></html>
