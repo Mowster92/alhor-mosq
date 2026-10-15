@@ -44,8 +44,9 @@ test('ALHOR can open a page through a user click without opening the API boundar
      res.resume();res.on('end',()=>resolve({status:res.statusCode,headers:res.headers}));
    });req.on('error',reject);req.end();
  });
+ for(const referer of ['http://127.0.0.1:19818/','http://127.0.0.1:18080/']) {
  const navigation={'Sec-Fetch-Site':'same-site','Sec-Fetch-Mode':'navigate',
-   'Sec-Fetch-Dest':'document','Sec-Fetch-User':'?1','Referer':'http://127.0.0.1:19818/'};
+   'Sec-Fetch-Dest':'document','Sec-Fetch-User':'?1','Referer':referer};
  for(const path of ['/','/display.html']) {
    const response=await navigate(path,navigation);
    assert.equal(response.status,200,path);
@@ -55,8 +56,10 @@ test('ALHOR can open a page through a user click without opening the API boundar
    assert.equal((await navigate(path,navigation)).status,403,path);
  for(const changed of [{'Sec-Fetch-Dest':'iframe'},{'Sec-Fetch-Mode':'cors'},
    {'Sec-Fetch-User':''},{'Referer':'http://127.0.0.1:19819/'},
+   {'Referer':'http://127.0.0.1:18081/'},
    {'Sec-Fetch-Site':'cross-site'},{Origin:'https://evil.example'}])
    assert.equal((await navigate('/',{...navigation,...changed})).status,403);
  assert.equal((await navigate('/api/bootstrap',
    {...navigation,Origin:base,'X-Local-App':'1'},'POST')).status,403);
+ }
 });

@@ -41,7 +41,7 @@ export function createApp({env = process.env, fetcher = fetch, candidateRoot, pr
       && req.headers['sec-fetch-mode'] === 'navigate'
       && req.headers['sec-fetch-dest'] === 'document'
       && req.headers['sec-fetch-user'] === '?1'
-      && req.headers.referer === 'http://127.0.0.1:19818/';
+      && ['http://127.0.0.1:19818/', 'http://127.0.0.1:18080/'].includes(req.headers.referer);
     if (req.headers.host !== `127.0.0.1:${server.address().port}`
       || (req.headers.origin && req.headers.origin !== origin)
       || (['cross-site','same-site'].includes(req.headers['sec-fetch-site']) && !platformPageEntry))
