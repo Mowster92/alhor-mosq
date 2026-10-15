@@ -43,6 +43,7 @@ Bron: chat `codex://threads/01a10f0b-64fc-7da1-bd98-70b9bd517675`, titel **UX-1-
 
 ## Werkplek, testen en grenzen
 
+- Livevertaler starten/herstarten op Windows: dubbelklik repository-root `START-VRIJDAGPREEK-LIVE.cmd`. Dit vraagt regio en verborgen Azure-sleutel via de bestaande PowerShell-launcher. De gewone `START-VRIJDAGPREEK.cmd` start zonder Azure-instelling als die niet al in het proces aanwezig is.
 - Dagelijkse ingang: repository-root `VRIJDAGPREEK-DEV.cmd`. Daar geeft Mo opdrachten en ziet hij voortgang. Esc onderbreekt; een correctie vervolgt. Ctrl+C sluit de agent; dezelfde launcher hervat de laatste sessie.
 - Deze sandbox is `vrijdagpreek-dev`, naast de behouden `portal-dev` omgeving. Windows runtime, Azure-sleutel en Portal-data blijven daarbuiten. Dit is een extra appwerkplek, geen vervanging/reset van Portal.
 - Je werkt op de echte gedeelde bron. Geen losse kopie als oplevering. Eén schrijver; bewaar bestaande edits. Geen commit/push/merge zonder expliciete toestemming.
