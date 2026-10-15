@@ -45,8 +45,10 @@ test('ALHOR can open a page through a user click without opening the API boundar
    });req.on('error',reject);req.end();
  });
  for(const referer of ['http://127.0.0.1:19818/','http://127.0.0.1:18080/']) {
+ for(const site of ['same-site','cross-site']) {
  const navigation={'Sec-Fetch-Site':'same-site','Sec-Fetch-Mode':'navigate',
    'Sec-Fetch-Dest':'document','Sec-Fetch-User':'?1','Referer':referer};
+ navigation['Sec-Fetch-Site']=site;
  for(const path of ['/','/display.html']) {
    const response=await navigate(path,navigation);
    assert.equal(response.status,200,path);
@@ -57,9 +59,19 @@ test('ALHOR can open a page through a user click without opening the API boundar
  for(const changed of [{'Sec-Fetch-Dest':'iframe'},{'Sec-Fetch-Mode':'cors'},
    {'Sec-Fetch-User':''},{'Referer':'http://127.0.0.1:19819/'},
    {'Referer':'http://127.0.0.1:18081/'},
-   {'Sec-Fetch-Site':'cross-site'},{Origin:'https://evil.example'}])
+   {'Referer':'https://evil.example/'},{Origin:'https://evil.example'}])
    assert.equal((await navigate('/',{...navigation,...changed})).status,403);
  assert.equal((await navigate('/api/bootstrap',
    {...navigation,Origin:base,'X-Local-App':'1'},'POST')).status,403);
+ }
+ }
+});
+
+test('Docker entry keeps the return link on Docker Portal without accepting arbitrary return URLs',async t=>{
+ const {base}=await setup(t);
+ for(const [query,expected] of [['?portal=docker','http://127.0.0.1:18080/'],['','http://127.0.0.1:19818/'],['?portal=https://evil.example','http://127.0.0.1:19818/']]) {
+   const response=await fetch(base+'/'+query);
+   assert.equal(response.status,200);
+   assert.ok((await response.text()).includes(`class="platform-return" href="${expected}"`));
  }
 });

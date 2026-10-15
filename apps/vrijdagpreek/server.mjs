@@ -37,7 +37,7 @@ export function createApp({env = process.env, fetcher = fetch, candidateRoot, pr
     const path = req.url?.split('?')[0];
     // A clicked ALHOR page entry is navigation, never permission to use the API.
     const platformPageEntry = req.method === 'GET' && ['/', '/index.html', '/display.html'].includes(path)
-      && req.headers['sec-fetch-site'] === 'same-site'
+      && ['same-site', 'cross-site'].includes(req.headers['sec-fetch-site'])
       && req.headers['sec-fetch-mode'] === 'navigate'
       && req.headers['sec-fetch-dest'] === 'document'
       && req.headers['sec-fetch-user'] === '?1'
@@ -110,7 +110,13 @@ export function createApp({env = process.env, fetcher = fetch, candidateRoot, pr
       if (req.method !== 'GET' || !files.has(path)) return reply(404,{error:'Niet gevonden.'});
       const filename=files.get(path);
       const mime=filename.endsWith('.html')?'text/html; charset=utf-8':filename.endsWith('.css')?'text/css':'text/javascript';
-      const bytes=await readFile(new URL(filename,root)); res.writeHead(200,{'Content-Type':mime}); res.end(bytes);
+      let bytes=await readFile(new URL(filename,root));
+      // Navigation context only: the fixed marker does not grant API/operator access.
+      if (filename === 'index.html' && new URL(req.url,origin).searchParams.get('portal') === 'docker') {
+        bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"',
+          'class="platform-return" href="http://127.0.0.1:18080/"'));
+      }
+      res.writeHead(200,{'Content-Type':mime}); res.end(bytes);
     } catch { if (!res.headersSent) reply(500,{error:'Lokale aanvraag mislukt. Controleer installatie/configuratie.'}); else res.end(); }
   });
   server.on('close',()=>clearInterval(watchdog));
