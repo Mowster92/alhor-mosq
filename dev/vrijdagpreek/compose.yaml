@@ -1,0 +1,20 @@
+name: vrijdagpreek-qa
+services:
+  checks:
+    build: .
+    image: vrijdagpreek-browser:local
+    working_dir: /source/apps/vrijdagpreek
+    volumes:
+      - ../..:/source:ro
+    network_mode: none
+    command: ["bash", "-lc", "node --test test/*.test.mjs && npm run check"]
+  browser:
+    build: .
+    image: vrijdagpreek-browser:local
+    init: true
+    shm_size: 512mb
+    network_mode: none
+    volumes:
+      - ../..:/source:ro
+      - ./browser-check.cjs:/qa/browser-check.cjs:ro
+      - ../../results/vrijdagpreek-agent/screenshots:/artifacts

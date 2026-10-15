@@ -6,7 +6,7 @@ import {readCandidate} from './candidate.mjs';
 
 export const REGIONS=['westeurope','northeurope','eastus','westus','eastus2','westus2','uksouth','francecentral','germanywestcentral','swedencentral'];
 const root=new URL('./',import.meta.url);
-const files=new Map(['index.html','display.html','app.js','operator.js','live.js','display.js','styles.css'].map(name=>['/'+name,name]));
+const files=new Map(['index.html','display.html','app.js','operator.js','live.js','display.js','styles.css','alhor-p1.svg','InterVariable.woff2','Inter-OFL.txt'].map(name=>['/'+name,name]));
 files.set('/','index.html');
 files.set('/sdk.js','node_modules/microsoft-cognitiveservices-speech-sdk/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js');
 files.set('/speech-processor.js','node_modules/microsoft-cognitiveservices-speech-sdk/distrib/browser/speech-processor.js');
@@ -120,7 +120,9 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         return reply(404,{error:'Onbekend API-pad.',errorCode:'INVALID_REQUEST'});
       }
       if(req.method!=='GET'||!files.has(path))return reply(404,{error:'Niet gevonden.',errorCode:'INVALID_REQUEST'});
-      const filename=files.get(path),mime=filename.endsWith('.html')?'text/html; charset=utf-8':filename.endsWith('.css')?'text/css':'text/javascript';
+      const filename=files.get(path),mime=filename.endsWith('.html')?'text/html; charset=utf-8'
+        :filename.endsWith('.css')?'text/css':filename.endsWith('.svg')?'image/svg+xml'
+        :filename.endsWith('.woff2')?'font/woff2':filename.endsWith('.txt')?'text/plain; charset=utf-8':'text/javascript';
       let bytes=await readFile(new URL(filename,root));
       if(filename==='index.html'&&new URL(req.url,origin).searchParams.get('portal')==='docker')
         bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"','class="platform-return" href="http://127.0.0.1:18080/"'));

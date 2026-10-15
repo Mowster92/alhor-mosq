@@ -1,3 +1,16 @@
+## Actuele Vrijdagpreek-stand — 15 oktober 2026
+
+Mo heeft Vrijdagpreek laten vereenvoudigen tot live Arabisch → Nederlands.
+De korte echte Azure-proef en de Firefox-test van beide schermen plus
+Stop/wachten/herstart zijn door Mo geaccepteerd. Baseline: `771fd08`.
+De voorbereiding/demo-beschrijvingen hieronder zijn historische resultaten;
+oude lokale teksten blijven behouden, maar zitten niet meer in de livebediening.
+
+De huidige vervolgstap is de app herkenbaar in ALHOR vormgeven, uitgevoerd
+in de eigen sandboxwerkplek. Lees `dev/vrijdagpreek/ONBOARDING.md` voor de
+begrensde opdracht, bronnen, tests en dagelijkse ingang `VRIJDAGPREEK-DEV.cmd`.
+Family en Care worden hiermee niet gewijzigd.
+
 # Projectbasis
 
 ## Gekozen toepassing — 12 oktober2026

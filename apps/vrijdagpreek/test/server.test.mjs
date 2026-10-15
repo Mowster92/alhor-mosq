@@ -107,3 +107,10 @@ test('Docker context preserves only the fixed Docker Portal home target',async t
     const html=await fetch(h.base+'/'+query).then(r=>r.text());assert.ok(html.includes(`class="platform-return" href="${target}"`));
   }
 });
+test('local ALHOR assets use the fixed allowlist and correct MIME types',async t=>{
+  const h=await setup(t);
+  for(const [path,type] of [['/alhor-p1.svg','image/svg+xml'],['/InterVariable.woff2','font/woff2'],['/Inter-OFL.txt','text/plain; charset=utf-8']]){
+    const response=await fetch(h.base+path);assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),type);
+  }
+  assert.equal((await fetch(h.base+'/unknown.svg')).status,404);
+});

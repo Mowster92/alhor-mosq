@@ -1,0 +1,7 @@
+{
+  "name": "vrijdagpreek-dev",
+  "template": "docker.io/docker/sandbox-templates:codex-docker@sha256:8b4cd0a46c8b600bc6b6a64af23c03d4c2807fbfc61f47568092a93fb9dc88b0",
+  "cpus": 2,
+  "memory": "3g",
+  "portalReference": "../../projects/alhor-portal-docker/portal/static/portal"
+}
