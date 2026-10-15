@@ -1,4 +1,4 @@
-param([ValidateSet('open','up','test','status')][string]$Action='open',[string]$SandboxName)
+param([ValidateSet('open','up','test','status')][string]$Action='open',[string]$SandboxName,[string]$SessionId,[switch]$NewSession)
 $ErrorActionPreference='Stop'
 $repoRoot=Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
 $config=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'sandbox.json') -Raw | ConvertFrom-Json
@@ -24,6 +24,42 @@ function Ensure-Sandbox {
     }
     Invoke-Sandbox exec $config.name true
 }
+$SandboxName=$config.name
+$projectRoot=$repoRoot
+function Open-ProjectAgent {
+    param([string]$Label, [string]$PreferredSession, [string]$SelectedSession)
+    $selector = @('exec', $SandboxName, 'python3', 'dev/project_session.py', '--prefer', $PreferredSession)
+    if ($SelectedSession) { $selector += @('--select', $SelectedSession) }
+    if ($NewSession) { $selection = [pscustomobject]@{ mode='new'; id=$null } }
+    else {
+        $selection = & $sbxCommand @selector | ConvertFrom-Json
+        if ($LASTEXITCODE -ne 0) { throw 'Could not resolve this project agent session.' }
+    }
+    Write-Host "`nALHOR | $Label | DEVELOPMENT"
+    Write-Host "Project: $projectRoot"
+    Write-Host "Sandbox: $SandboxName"
+    Write-Host 'Only this terminal agent receives requests. Esc interrupts; Ctrl+C closes. Reopen this launcher to resume.'
+    try { $host.UI.RawUI.WindowTitle = "ALHOR - $Label development - $SandboxName" } catch { }
+    if ($selection.mode -eq 'resume') {
+        Write-Host "Resuming session: $($selection.id)`n"
+        & $sbxCommand run --name $SandboxName -- resume $selection.id
+        $agentExit = $LASTEXITCODE
+        if ($agentExit -notin @(0,130)) {
+            Write-Warning "Agent connection ended (exit $agentExit). The pinned session remains $($selection.id). Reopen this development launcher to reconnect; app startup does not require a new agent task."
+        }
+    } elseif ($selection.mode -in @('missing','ambiguous')) {
+        throw "$($selection.reason). Use -SessionId <id> or -NewSession deliberately. Available: $($selection.ids -join ', ')"
+    } else {
+        Write-Host 'Starting a NEW project session. No existing conversation is being resumed.'
+        $entered = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
+        & $sbxCommand run --name $SandboxName
+        $newSession = & $sbxCommand exec $SandboxName python3 dev/project_session.py --after $entered | ConvertFrom-Json
+        if ($LASTEXITCODE -eq 0 -and $newSession.mode -eq 'resume') { Write-Host "Saved session for reopening: $($newSession.id)" }
+        else { Write-Warning 'No unique new interactive session was found. Next opening will show the available recovery choice.' }
+    }
+    Write-Host "Agent closed. Saved work remains. Reopen the $Label development launcher to continue."
+}
+
 switch ($Action) {
     'status' { Invoke-Sandbox ls }
     'up' { Ensure-Sandbox }
@@ -34,9 +70,6 @@ switch ($Action) {
     }
     'open' {
         Ensure-Sandbox
-        Write-Host 'Vrijdagpreek agent. Esc interrupts; Ctrl+C exits. Reopen this launcher to continue.'
-        $sessions=& $sbxCommand exec $config.name sh -c 'find /home/agent/.codex/sessions -name "*.jsonl" -type f 2>/dev/null | head -n 1'
-        if ($sessions) { Invoke-Sandbox run --name $config.name -- resume --last }
-        else { Invoke-Sandbox run --name $config.name -- 'Read AGENTS.md and dev/vrijdagpreek/ONBOARDING.md. Briefly explain your assignment and what is already proven, then wait for my request.' }
+        Open-ProjectAgent -Label 'Vrijdagpreek' -PreferredSession '01a13e18-fe66-7e20-8cdf-5ece2574d056' -SelectedSession $SessionId
     }
 }

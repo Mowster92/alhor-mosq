@@ -6,17 +6,24 @@ Bron: `Mowster92/alhor-mosq`, `apps/vrijdagpreek`. De bestaande Azure Speech-kop
 
 ## Starten op Windows
 
-Node.js 22 of nieuwer is nodig. `START-WINDOWS.cmd` installeert bij de eerste start de vastgelegde afhankelijkheden. Zonder Azure-instelling kun je alleen de microfoon lokaal testen.
+Node.js 22 of nieuwer en PowerShell 7 zijn nodig. Dubbelklik **START-VRIJDAGPREEK.cmd** in de repository-root, of klik **Open Vrijdagpreek** in de huidige Docker Portal. Beide routes gebruiken dezelfde Windows-starter: juiste instantie hergebruiken, gewijzigde bron controleren en activeren, gereedheid bevestigen en pas dan openen. De bridge wordt door Portal automatisch gestart.
 
-Voor livevertaling, open PowerShell in deze map:
+Alleen bij de eerste start verschijnt een apart venster voor regio (hier `northeurope`) en verborgen sleutel. Windows bewaart die versleuteld voor jouw gebruikersaccount op deze pc, buiten Git en de agent-sandbox. Daarna gaat de starter zelf verder. De vensters van de starter mogen sluiten; de app blijft draaien. `START-VRIJDAGPREEK-LIVE.cmd` en de oudere appstarters blijven compatibele ingangen.
+
+De app staat op **http://127.0.0.1:8080/**. **ALHOR home** keert terug naar Docker Portal op 18080. Opnieuw openen hergebruikt een juiste lopende instantie. Een actieve vertaling wordt niet voor nieuwe code onderbroken: klik eerst **Stop** en open daarna opnieuw. Een onbekend proces op poort 8080 wordt niet gestopt.
+
+Voor ontwikkeling gebruik je **VRIJDAGPREEK-DEV.cmd** in de repository-root. Dat toont project, sandbox en de exacte hervatte agentsessie. Daar geef je opdrachten; de gewone appstarter opent geen agent. Esc onderbreekt, Ctrl+C sluit de agent. Dezelfde ontwikkelstarter hervat de vastgehouden sessie. Een ontbrekende of dubbelzinnige sessie wordt gemeld; bewust kiezen kan met `-SessionId`, bewust opnieuw beginnen met `-NewSession` op `dev/vrijdagpreek/vrijdagpreek-dev.ps1`.
+
+Expliciete acties, indien nodig, vanaf de repository-root:
 
 ```powershell
-powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File .\START-LIVE.ps1
+pwsh -NoProfile -File dev/vrijdagpreek/windows-app.ps1 -Action restart
+pwsh -NoProfile -File dev/vrijdagpreek/windows-app.ps1 -Action stop
+pwsh -NoProfile -File dev/vrijdagpreek/windows-app.ps1 -Action status
+pwsh -NoProfile -File dev/vrijdagpreek/windows-app.ps1 -Action configure
 ```
 
-Voer de regio van je Speech-resource in, bijvoorbeeld `northeurope`, en daarna de sleutel in het verborgen invoerveld. De sleutel blijft in het serverproces; hij wordt niet in een bestand opgeslagen. Laat dit venster open.
-
-Open **http://127.0.0.1:8080/**. Vanuit Docker Portal blijft **Open Vrijdagpreek** de ingang; de bestaande Windows-bridge moet daarvoor draaien. Een via Docker Portal geopend bedieningsscherm keert met **ALHOR home** terug naar poort 18080.
+`configure` vervangt de bewaarde Azure-instelling; herstart daarna om die toe te passen. De normale start voert nooit automatisch audio naar Azure.
 
 ## Een korte echte proef
 
@@ -28,7 +35,7 @@ Open **http://127.0.0.1:8080/**. Vanuit Docker Portal blijft **Open Vrijdagpreek
 6. Controleer de blijvende status boven de ondertitels. **Luistert naar Arabische spraak** betekent dat de spraaksessie is geopend. Tijdens herkenning worden voorlopige Nederlandse woorden aangevuld; een ontvangen zin vervangt die voorlopige tekst. De Arabische herkenning helpt fouten in de ingang te onderscheiden van vertaalfouten.
 7. Klik **Stop**. De microfoon gaat uit en de laatste ondertitel blijft zichtbaar. **Tekst wissen** wist ook het publiekscherm. Opnieuw starten maakt een nieuwe sessie, ook na wachten of een eerdere fout.
 
-De app speelt geen geluid terug en slaat geen audio of live transcript op. Ondertitels staan alleen in geheugen. Na een serverherstart zijn ze weg. Sluit af met Stop en daarna Ctrl+C in het servervenster.
+De app speelt geen geluid terug en slaat geen audio of live transcript op. Ondertitels staan alleen in geheugen. Na een serverherstart zijn ze weg. Stop de vertaling vóór je het bedieningsvenster sluit. De lokale server mag blijven draaien; de expliciete stopactie hierboven sluit hem af zonder opgeslagen werk of Azure-instelling te verwijderen.
 
 ## Als het niet lukt
 
@@ -58,4 +65,4 @@ npm test
 npm run check
 ```
 
-De tests gebruiken tijdelijke gegevens en een gesimuleerde provider; ze starten geen echte microfoon of Azure-audio. Een bronwijziging maakt de bestaande `candidate.json` onbekend totdat de exacte nieuwe bron is vastgelegd en de server gecontroleerd opnieuw gestart. Dat voorkomt dat Portal oude bronmetadata voor een nieuwe app aanziet.
+De tests gebruiken tijdelijke gegevens en een gesimuleerde provider; ze starten geen echte microfoon of Azure-audio. Na bronwijzigingen voert de normale starter `npm test` en `npm run check` uit, legt een herkenbare `dev-…` identiteit voor de exacte gecontroleerde werkbestanden vast en herstart de eigen inactieve server. Die ontwikkelidentiteit is geen gecommitteerde of gepubliceerde oplevering. Een mislukte controle laat de draaiende app en kandidaat ongemoeid. `candidate.json` blijft gegenereerde metadata; maak daarvoor geen handmatige hashes of verplichte tussentijdse commits.

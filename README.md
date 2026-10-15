@@ -4,9 +4,11 @@ Werkrepository voor een moskeebeheer-app van Said Alhor.
 
 De eerste werkende toepassing is **Vrijdagpreek**, onder `apps/vrijdagpreek`:
 een lokale operator en publieksweergave voor Arabisch/Nederlandse ondertitels.
-Start `START-VRIJDAGPREEK.cmd`. Je kunt tekstparen voorbereiden, op deze pc
-opslaan, corrigeren en handmatig tonen. Vaste voorbeelden blijven beschikbaar.
-Dit is geen bewijs van live spraakvertaling of een productievoorziening.
+Start `START-VRIJDAGPREEK.cmd`. De huidige toepassing vertaalt live Arabische
+spraak naar Nederlandse ondertitels via Azure Speech, met een apart publiekscherm.
+Zie `apps/vrijdagpreek/README.md` voor bediening en `dev/vrijdagpreek/ONBOARDING.md`
+voor ontwikkeling. De oudere voorbereidingen zijn bewaard, maar worden door de
+livevertaler niet gebruikt. Een volledige moskeerepetitie blijft nog te doen.
 
 Mo koos deze bronintegratie op 12 oktober 2026. Said Alhor's werk en de
 moskeebeheer-basis blijven behouden. De overige modules hieronder zijn nog
