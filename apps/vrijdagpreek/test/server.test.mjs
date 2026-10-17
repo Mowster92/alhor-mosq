@@ -145,7 +145,7 @@ test('daily and development Portal return contexts stay fixed per tab and on rel
   for(const [context,home] of [['local','http://127.0.0.1:18180/'],['docker','http://127.0.0.1:18080/']]){
     for(let reload=0;reload<2;reload++){
       const html=await fetch(h.base+'/?portal='+context).then(r=>r.text());
-      assert.ok(html.includes(`class="platform-return" href="${home}"`));
+      assert.ok(html.includes(`class="platform-return" href="${home}" target="_blank" rel="noopener noreferrer"`));
       assert.ok(html.includes(`class="improvement-link" href="${home}app/operating/feedback/new/?app=vrijdagpreek"`));
     }
   }
