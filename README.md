@@ -1,6 +1,6 @@
 # Alhor Mosq
 
-Local consolidated route: `MOSQUE-LOCAL.cmd` opens **http://127.0.0.1:18182/** from this repository, with return to Portal on 18180. `up`, `status` and `stop` act only on Mosque. `MOSQUE-DEV.cmd` is a compatibility alias; `VRIJDAGPREEK-DEV.cmd` remains the coding workspace. This local Docker route does not configure Azure or start audio; the existing Windows speech route remains separate.
+Local consolidated route: `MOSQUE-LOCAL.cmd` opens **http://127.0.0.1:18182/** from this repository, with return to Portal on 18180. `up`, `status` and `stop` act only on Mosque. `VRIJDAGPREEK-DEV.cmd` opens the separate coding workspace; `START-VRIJDAGPREEK.cmd` opens the Windows speech app on 8080. This local Docker route does not configure Azure or start audio; the existing Windows speech route remains separate.
 
 Werkrepository voor een moskeebeheer-app van Said Alhor.
 

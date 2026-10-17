@@ -8,7 +8,7 @@ Bron: `Mowster92/alhor-mosq`, `apps/vrijdagpreek`. De bestaande Azure Speech-kop
 
 Node.js 22 of nieuwer en PowerShell 7 zijn nodig. Dubbelklik **START-VRIJDAGPREEK.cmd** in de repository-root, of klik **Open Vrijdagpreek** in de huidige Docker Portal. Beide routes gebruiken dezelfde Windows-starter: juiste instantie hergebruiken, gewijzigde bron controleren en activeren, gereedheid bevestigen en pas dan openen. De bridge wordt door Portal automatisch gestart.
 
-Alleen bij de eerste start verschijnt een apart venster voor regio (hier `northeurope`) en verborgen sleutel. Windows bewaart die versleuteld voor jouw gebruikersaccount op deze pc, buiten Git en de agent-sandbox. Daarna gaat de starter zelf verder. De vensters van de starter mogen sluiten; de app blijft draaien. `START-VRIJDAGPREEK-LIVE.cmd` en de oudere appstarters blijven compatibele ingangen.
+Alleen bij de eerste start verschijnt een apart venster voor regio (hier `northeurope`) en verborgen sleutel. Windows bewaart die versleuteld voor jouw gebruikersaccount op deze pc, buiten Git en de agent-sandbox. Daarna gaat de starter zelf verder. De vensters van de starter mogen sluiten; de app blijft draaien. Gebruik deze ene Windows-ingang; verwijderde dubbele launchers zijn via Git terug te vinden. Voor de afzonderlijke Docker-proef op 18182 gebruik je `MOSQUE-LOCAL.cmd` in de repository-root; die configureert geen Azure en start geen audio.
 
 De app staat op **http://127.0.0.1:8080/**. **ALHOR home** keert terug naar Docker Portal op 18080. Opnieuw openen hergebruikt een juiste lopende instantie. Een actieve vertaling wordt niet voor nieuwe code onderbroken: klik eerst **Stop** en open daarna opnieuw. Een onbekend proces op poort 8080 wordt niet gestopt.
 
