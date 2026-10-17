@@ -130,6 +130,8 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
       let bytes=await readFile(new URL(filename,root));
       if(filename==='index.html'&&(env.ALHOR_PORTAL_PORT||new URL(req.url,origin).searchParams.get('portal')==='docker'))
         bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"',`class="platform-return" href="${portalHome}"`));
+      if(filename==='index.html')
+        bytes=Buffer.from(bytes.toString('utf8').replace('class="improvement-link" href="http://127.0.0.1:18080/app/operating/feedback/new/?app=vrijdagpreek"',`class="improvement-link" href="${portalHome}app/operating/feedback/new/?app=vrijdagpreek"`));
       res.writeHead(200,{'Content-Type':mime});res.end(bytes);
     }catch{if(!res.headersSent)error(500,'INVALID_REQUEST');else res.end();}
   });

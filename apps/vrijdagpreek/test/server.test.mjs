@@ -130,3 +130,12 @@ test('configured local Portal entry and return preserve cross-site API protectio
   assert.equal(await navigate('/api/events'),403);
   assert.equal(h.calls.length,0);
 });
+
+test('improvement entrance carries only the fixed app key to configured Portal',async t=>{
+  const h=await setup(t,{env:{ALHOR_PORTAL_PORT:'18180'}});
+  const html=await fetch(h.base+'/').then(r=>r.text());
+  assert.match(html,/class="improvement-link" href="http:\/\/127\.0\.0\.1:18180\/app\/operating\/feedback\/new\/\?app=vrijdagpreek" target="_blank" rel="noopener noreferrer"/);
+  assert.equal(h.calls.length,0);
+  const display=await fetch(h.base+'/display.html').then(r=>r.text());
+  assert.doesNotMatch(display,/improvement-link/);
+});

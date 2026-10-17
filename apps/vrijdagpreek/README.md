@@ -66,3 +66,9 @@ npm run check
 ```
 
 De tests gebruiken tijdelijke gegevens en een gesimuleerde provider; ze starten geen echte microfoon of Azure-audio. Na bronwijzigingen voert de normale starter `npm test` en `npm run check` uit, legt een herkenbare `dev-…` identiteit voor de exacte gecontroleerde werkbestanden vast en herstart de eigen inactieve server. Die ontwikkelidentiteit is geen gecommitteerde of gepubliceerde oplevering. Een mislukte controle laat de draaiende app en kandidaat ongemoeid. `candidate.json` blijft gegenereerde metadata; maak daarvoor geen handmatige hashes of verplichte tussentijdse commits.
+
+De operator heeft ook “Verbetering voorstellen”: een apart Portal-tabblad met
+uitsluitend `app=vrijdagpreek`. Audio, ondertitels en sessiegegevens worden niet
+meegestuurd. De link gebruikt dezelfde ingestelde lokale Portal-poort als de
+terugroute en staat niet op het publiekscherm. Opslaan in Portal begint geen
+ontwikkelwerk; gebruik de bestaande VRIJDAGPREEK-DEV.cmd wanneer je verder wilt.
