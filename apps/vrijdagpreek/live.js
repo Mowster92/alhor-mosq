@@ -7,7 +7,7 @@ const messages={
   MIC_FAILED:'De microfoon kon niet worden gestart.',
   SDK_UNAVAILABLE:'De spraakmodule is niet geladen. Vernieuw deze pagina.',
   SDK_FAILED:'De spraakmodule kon de audiostream niet starten.',
-  AZURE_NOT_CONFIGURED:'Azure is niet ingesteld. Start de app met START-LIVE.ps1.',
+  AZURE_NOT_CONFIGURED:'Azure is niet ingesteld. Gebruik voor live spraak START-VRIJDAGPREEK.cmd in de repository-root.',
   CONSENT_REQUIRED:'Geef eerst toestemming om de audio naar Azure te sturen.',
   AZURE_AUTH_FAILED:'Azure weigert de aanmelding. Controleer de sleutel en de bijbehorende regio.',
   AZURE_QUOTA:'Azure weigert nieuwe audio wegens het gebruikslimiet. Controleer het F0-tegoed.',

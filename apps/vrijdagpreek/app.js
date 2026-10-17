@@ -20,7 +20,7 @@ function render(state=operator.state){
   $('live-start').textContent=state.phase==='error'?'Opnieuw starten':'Start vertaling';
   $('stop').disabled=!active&&!meterActive&&!choosing;
   $('test-mic').textContent=meterActive?'Stop microfoontest':'Test microfoon';
-  $('azure-state').textContent=config?.configured?`Azure ingesteld (${config.region})`:config?'Azure niet ingesteld. Start de app via START-LIVE.ps1.':'Lokale app controleren…';
+  $('azure-state').textContent=config?.configured?`Azure ingesteld (${config.region})`:config?'Azure niet ingesteld. Voor live spraak: open START-VRIJDAGPREEK.cmd in de repository-root. De Docker-proef configureert geen Azure.':'Lokale app controleren…';
 }
 function stopMeter(){
   meterRun++;meterActive=false;cancelAnimationFrame(meterFrame);
