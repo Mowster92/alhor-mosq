@@ -1,0 +1,14 @@
+name: alhor-mosque
+services:
+  vrijdagspreek:
+    build: .
+    image: alhor-mosque-vrijdagspreek:local
+    ports:
+      - "127.0.0.1:${MOSQUE_PORT:-18182}:8080"
+    environment:
+      NODE_ENV: development
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:8080/api/identity').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
