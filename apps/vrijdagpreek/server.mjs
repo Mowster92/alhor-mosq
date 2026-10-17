@@ -29,7 +29,8 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
   const portalPort=String(env.ALHOR_PORTAL_PORT||'18080');
   if(!/^\d+$/.test(portalPort)||Number(portalPort)<1||Number(portalPort)>65535)throw new Error('Ongeldige lokale Portal-poort.');
   const portalHome=`http://127.0.0.1:${Number(portalPort)}/`;
-  const portalEntries=['http://127.0.0.1:19818/','http://127.0.0.1:18080/',portalHome];
+  const portalContexts={docker:'http://127.0.0.1:18080/',local:'http://127.0.0.1:18180/'};
+  const portalEntries=['http://127.0.0.1:19818/',...Object.values(portalContexts),portalHome];
   let state={dutch:'',arabic:'',mode:'live',phase:'idle',status:'Gereed voor een live proef.',active:false,partial:false,errorCode:null};
   let owner=null,seen=0,generation=0;
   const region=env.AZURE_SPEECH_REGION||'westeurope';
@@ -128,10 +129,14 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         :filename.endsWith('.css')?'text/css':filename.endsWith('.svg')?'image/svg+xml'
         :filename.endsWith('.woff2')?'font/woff2':filename.endsWith('.txt')?'text/plain; charset=utf-8':'text/javascript';
       let bytes=await readFile(new URL(filename,root));
-      if(filename==='index.html'&&(env.ALHOR_PORTAL_PORT||new URL(req.url,origin).searchParams.get('portal')==='docker'))
-        bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"',`class="platform-return" href="${portalHome}"`));
-      if(filename==='index.html')
-        bytes=Buffer.from(bytes.toString('utf8').replace('class="improvement-link" href="http://127.0.0.1:18080/app/operating/feedback/new/?app=vrijdagpreek"',`class="improvement-link" href="${portalHome}app/operating/feedback/new/?app=vrijdagpreek"`));
+      if(filename==='index.html'){
+        // Only named local entrances may select a return target; never accept a URL.
+        const context=new URL(req.url,origin).searchParams.get('portal');
+        const selectedHome=Object.hasOwn(portalContexts,context)?portalContexts[context]:null;
+        const returnHome=selectedHome||(env.ALHOR_PORTAL_PORT?portalHome:null);
+        if(returnHome)bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"',`class="platform-return" href="${returnHome}"`));
+        bytes=Buffer.from(bytes.toString('utf8').replace('class="improvement-link" href="http://127.0.0.1:18080/app/operating/feedback/new/?app=vrijdagpreek"',`class="improvement-link" href="${selectedHome||portalHome}app/operating/feedback/new/?app=vrijdagpreek"`));
+      }
       res.writeHead(200,{'Content-Type':mime});res.end(bytes);
     }catch{if(!res.headersSent)error(500,'INVALID_REQUEST');else res.end();}
   });

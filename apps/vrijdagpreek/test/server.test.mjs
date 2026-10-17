@@ -94,7 +94,7 @@ test('a token completing after stop is discarded and cannot revive the session',
 test('clicked Portal entry works for Firefox/Chromium without permitting cross-site API access',async t=>{
   const h=await setup(t);
   const navigate=(path,headers,method='GET')=>new Promise((resolve,reject)=>{const req=request(h.base+path,{method,headers},res=>{res.resume();res.on('end',()=>resolve(res.statusCode));});req.on('error',reject);req.end();});
-  for(const referer of ['http://127.0.0.1:19818/','http://127.0.0.1:18080/'])for(const site of ['same-site','cross-site']){
+  for(const referer of ['http://127.0.0.1:19818/','http://127.0.0.1:18080/','http://127.0.0.1:18180/'])for(const site of ['same-site','cross-site']){
     const headers={'Sec-Fetch-Site':site,'Sec-Fetch-Mode':'navigate','Sec-Fetch-Dest':'document','Sec-Fetch-User':'?1',Referer:referer};
     for(const path of ['/','/display.html'])assert.equal(await navigate(path,headers),200);
     for(const path of ['/api/events','/sdk.js'])assert.equal(await navigate(path,headers),403);
@@ -138,4 +138,22 @@ test('improvement entrance carries only the fixed app key to configured Portal',
   assert.equal(h.calls.length,0);
   const display=await fetch(h.base+'/display.html').then(r=>r.text());
   assert.doesNotMatch(display,/improvement-link/);
+});
+
+test('daily and development Portal return contexts stay fixed per tab and on reload',async t=>{
+  const h=await setup(t,{env:{ALHOR_PORTAL_PORT:'18180'}});
+  for(const [context,home] of [['local','http://127.0.0.1:18180/'],['docker','http://127.0.0.1:18080/']]){
+    for(let reload=0;reload<2;reload++){
+      const html=await fetch(h.base+'/?portal='+context).then(r=>r.text());
+      assert.ok(html.includes(`class="platform-return" href="${home}"`));
+      assert.ok(html.includes(`class="improvement-link" href="${home}app/operating/feedback/new/?app=vrijdagpreek"`));
+    }
+  }
+  for(const context of ['https://evil.example','//evil.example','constructor','__proto__']){
+    const html=await fetch(h.base+'/?portal='+encodeURIComponent(context)).then(r=>r.text());
+    assert.ok(html.includes('class="platform-return" href="http://127.0.0.1:18180/"'));
+    assert.doesNotMatch(html,/evil\.example/);
+  }
+  assert.equal((await h.snapshot()).active,false);
+  assert.equal(h.calls.length,0);
 });
