@@ -114,3 +114,19 @@ test('local ALHOR assets use the fixed allowlist and correct MIME types',async t
   }
   assert.equal((await fetch(h.base+'/unknown.svg')).status,404);
 });
+
+
+test('configured local Portal entry and return preserve cross-site API protection',async t=>{
+  const h=await setup(t,{env:{ALHOR_PORTAL_PORT:'18180'}});
+  const html=await fetch(h.base+'/').then(r=>r.text());
+  assert.ok(html.includes('class="platform-return" href="http://127.0.0.1:18180/"'));
+  const navigate=path=>new Promise((resolve,reject)=>{
+    const req=request(h.base+path,{headers:{'Sec-Fetch-Site':'same-site','Sec-Fetch-Mode':'navigate',
+      'Sec-Fetch-Dest':'document','Sec-Fetch-User':'?1',Referer:'http://127.0.0.1:18180/'}},res=>{
+      res.resume();res.on('end',()=>resolve(res.statusCode));
+    });req.on('error',reject);req.end();
+  });
+  assert.equal(await navigate('/'),200);
+  assert.equal(await navigate('/api/events'),403);
+  assert.equal(h.calls.length,0);
+});

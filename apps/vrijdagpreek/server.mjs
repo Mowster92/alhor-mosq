@@ -26,6 +26,10 @@ const messages={
 
 export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.now,timers=globalThis,leaseMs=15000}={}){
   const bootCandidate=readCandidate(candidateRoot),csrf=randomBytes(32).toString('hex'),clients=new Set();
+  const portalPort=String(env.ALHOR_PORTAL_PORT||'18080');
+  if(!/^\d+$/.test(portalPort)||Number(portalPort)<1||Number(portalPort)>65535)throw new Error('Ongeldige lokale Portal-poort.');
+  const portalHome=`http://127.0.0.1:${Number(portalPort)}/`;
+  const portalEntries=['http://127.0.0.1:19818/','http://127.0.0.1:18080/',portalHome];
   let state={dutch:'',arabic:'',mode:'live',phase:'idle',status:'Gereed voor een live proef.',active:false,partial:false,errorCode:null};
   let owner=null,seen=0,generation=0;
   const region=env.AZURE_SPEECH_REGION||'westeurope';
@@ -52,7 +56,7 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
       &&['same-site','cross-site'].includes(req.headers['sec-fetch-site'])
       &&req.headers['sec-fetch-mode']==='navigate'&&req.headers['sec-fetch-dest']==='document'
       &&req.headers['sec-fetch-user']==='?1'
-      &&['http://127.0.0.1:19818/','http://127.0.0.1:18080/'].includes(req.headers.referer);
+      &&portalEntries.includes(req.headers.referer);
     if(req.headers.host!==`127.0.0.1:${server.address().port}`||(req.headers.origin&&req.headers.origin!==origin)
       ||(['cross-site','same-site'].includes(req.headers['sec-fetch-site'])&&!platformPageEntry))
       return error(403,'INVALID_REQUEST');
@@ -124,8 +128,8 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         :filename.endsWith('.css')?'text/css':filename.endsWith('.svg')?'image/svg+xml'
         :filename.endsWith('.woff2')?'font/woff2':filename.endsWith('.txt')?'text/plain; charset=utf-8':'text/javascript';
       let bytes=await readFile(new URL(filename,root));
-      if(filename==='index.html'&&new URL(req.url,origin).searchParams.get('portal')==='docker')
-        bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"','class="platform-return" href="http://127.0.0.1:18080/"'));
+      if(filename==='index.html'&&(env.ALHOR_PORTAL_PORT||new URL(req.url,origin).searchParams.get('portal')==='docker'))
+        bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"',`class="platform-return" href="${portalHome}"`));
       res.writeHead(200,{'Content-Type':mime});res.end(bytes);
     }catch{if(!res.headersSent)error(500,'INVALID_REQUEST');else res.end();}
   });
@@ -135,5 +139,6 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
 if(process.argv[1]===fileURLToPath(import.meta.url)){
   const server=createApp();
   server.on('error',()=>{console.error('Start mislukt: poort 8080 bezet of toegang geweigerd.');process.exitCode=1;});
-  server.listen(8080,'127.0.0.1',()=>console.log('Open http://127.0.0.1:8080 — geen audio of cloud tot expliciete live-start.'));
+  const port=Number(process.env.PORT||8080),host=process.env.LISTEN_HOST||'127.0.0.1';
+  server.listen(port,host,()=>console.log(`Open http://127.0.0.1:${port} — geen audio of cloud tot expliciete live-start.`));
 }

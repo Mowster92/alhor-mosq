@@ -1,10 +1,10 @@
 {
   "schema": "alhor-app-candidate/v1",
   "app_key": "vrijdagpreek",
-  "version": "dev-4c5ef8707bcf",
+  "version": "dev-62e43b4a3919",
   "source_kind": "working-tree",
-  "base_commit": "d5f7c205f1b87dc054268a414cec3c02a498270f",
-  "source_digest": "4c5ef8707bcf4c33d1f46e76befd8d44bc6997e0aa0257f93539500b9833320d",
+  "base_commit": "5008a969e5775d4d93d746d1c3bcaedae84cd00a",
+  "source_digest": "62e43b4a39199286e1be69891c81defe6a7644fa2ecc783be7a6eeab9c03f0c5",
   "source_manifest": {
     ".gitignore": "9f2316bf613d5045d39431352d2f4029aecfa562e7934f92f880e7c5e312fd0f",
     "Inter-OFL.txt": "4da309c752beb563b3d9429a66240127d6df358add6dcb6409b077bc6b974c5e",
@@ -23,13 +23,13 @@
     "package-lock.json": "2c35b23e3612d50f0eeb5fbbea69494860eaa3813a74a2ebb86d5735b399d561",
     "package.json": "a9c9819f5a8a79954c821c39bd128a8e820685af146765afdb2078b121838a26",
     "scripts/activate-development.mjs": "d8b8deed1e8fb96c49a12496a7354840c60f090553a08ca57cf41bb30eb4bb6e",
-    "server.mjs": "4a6fa3d8e8e18e9addeb4baf54357457b3c4121ab09511cd8c21c92b40c28eaa",
+    "server.mjs": "2fbcffaa66c2d603ec14c7ab4a3b9731ceca9176f563ab4155ce018a766451b2",
     "styles.css": "a0095a92319868d77b3e10cd4735311083f50107e5d37c327c8943e1a63ca16e",
     "test/activation.test.mjs": "93973528ef47e653d881794612abf059c02518564d33bed789256470b87ae553",
     "test/candidate.test.mjs": "9752a3452a8e97e3e808f63d08ffce449fe316111bb2c970cb94aae5788c7b28",
     "test/live.test.mjs": "2bffdbc664905d3a541ca87b05900a260657026878e86154be93eeaa4fd299f5",
     "test/operator.test.mjs": "c1ce9cc17224a46f4f7a6065d9ebb6f2aeedff9e6fe86d89b0c42b4dfb1b3f6d",
-    "test/server.test.mjs": "8a6a72691ae5a0e73920c52590704ebda68e7b6c8e001e78d0a91d189e488c63"
+    "test/server.test.mjs": "33f4b737762b9a8687b27c5758be992fe1bc87145800202305a8dfe25c679822"
   },
-  "prepared_at": "2026-10-15T09:10:16.563Z"
+  "prepared_at": "2026-10-17T17:51:28.854Z"
 }
