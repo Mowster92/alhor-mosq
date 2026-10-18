@@ -103,7 +103,7 @@ test('clicked Portal entry works for Firefox/Chromium without permitting cross-s
 });
 test('Docker context preserves only the fixed Docker Portal home target',async t=>{
   const h=await setup(t);
-  for(const [query,target] of [['?portal=docker','http://127.0.0.1:18080/'],['','http://127.0.0.1:19818/'],['?portal=https://evil.example','http://127.0.0.1:19818/']]){
+  for(const [query,target] of [['?portal=docker','http://127.0.0.1:18080/app/operating/?return=vrijdagpreek'],['','http://127.0.0.1:19818/'],['?portal=https://evil.example','http://127.0.0.1:19818/']]){
     const html=await fetch(h.base+'/'+query).then(r=>r.text());assert.ok(html.includes(`class="platform-return" href="${target}"`));
   }
 });
@@ -145,7 +145,7 @@ test('daily and development Portal return contexts stay fixed per tab and on rel
   for(const [context,home] of [['local','http://127.0.0.1:18180/'],['docker','http://127.0.0.1:18080/']]){
     for(let reload=0;reload<2;reload++){
       const html=await fetch(h.base+'/?portal='+context).then(r=>r.text());
-      assert.ok(html.includes(`class="platform-return" href="${home}" target="_blank" rel="noopener noreferrer"`));
+      assert.ok(html.includes(`class="platform-return" href="${home}app/operating/?return=vrijdagpreek" target="_blank" rel="noopener noreferrer"`));
       assert.ok(html.includes(`class="improvement-link" href="${home}app/operating/feedback/new/?app=vrijdagpreek"`));
     }
   }

@@ -29,7 +29,7 @@ let browser,server;
  page.on('pageerror',()=>errors.push('Unhandled operator browser error'));
  const capture=async(name,target=page)=>target.screenshot({path:path.join(artifacts,name+'.png'),fullPage:true});
  await page.goto(base+'/?portal=docker');await page.waitForFunction(()=>document.querySelector('#azure-state')?.textContent.includes('Azure ingesteld'));
- if(await page.locator('.platform-return').getAttribute('href')!=='http://127.0.0.1:18080/')throw Error('Docker Portal return changed');
+ if(await page.locator('.platform-return').getAttribute('href')!=='http://127.0.0.1:18080/app/operating/?return=vrijdagpreek')throw Error('Docker Portal return changed');
  await capture('operator-idle-1000');
  await page.locator('#open-display').focus();await capture('operator-focus-1000');
  await page.locator('.technical').evaluate(element=>element.open=true);await capture('operator-details-1000');await page.locator('.technical').evaluate(element=>element.open=false);

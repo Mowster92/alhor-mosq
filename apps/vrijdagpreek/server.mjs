@@ -133,7 +133,7 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         // Only named local entrances may select a return target; never accept a URL.
         const context=new URL(req.url,origin).searchParams.get('portal');
         const selectedHome=Object.hasOwn(portalContexts,context)?portalContexts[context]:null;
-        const returnHome=selectedHome||(env.ALHOR_PORTAL_PORT?portalHome:null);
+        const returnHome=selectedHome?`${selectedHome}app/operating/?return=vrijdagpreek`:(env.ALHOR_PORTAL_PORT?portalHome:null);
         if(returnHome)bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"',`class="platform-return" href="${returnHome}"`));
         bytes=Buffer.from(bytes.toString('utf8').replace('class="improvement-link" href="http://127.0.0.1:18080/app/operating/feedback/new/?app=vrijdagpreek"',`class="improvement-link" href="${selectedHome||portalHome}app/operating/feedback/new/?app=vrijdagpreek"`));
       }
