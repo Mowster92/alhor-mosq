@@ -3,10 +3,11 @@ import {readFile} from 'node:fs/promises';
 import {randomBytes} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {readCandidate} from './candidate.mjs';
+import {FeedbackStore} from './feedback-store.mjs';
 
 export const REGIONS=['westeurope','northeurope','eastus','westus','eastus2','westus2','uksouth','francecentral','germanywestcentral','swedencentral'];
 const root=new URL('./',import.meta.url);
-const files=new Map(['index.html','display.html','app.js','operator.js','live.js','display.js','styles.css','alhor-p1.svg','InterVariable.woff2','Inter-OFL.txt'].map(name=>['/'+name,name]));
+const files=new Map(['index.html','display.html','app.js','operator.js','live.js','display.js','feedback.js','styles.css','alhor-p1.svg','InterVariable.woff2','Inter-OFL.txt'].map(name=>['/'+name,name]));
 files.set('/','index.html');
 files.set('/sdk.js','node_modules/microsoft-cognitiveservices-speech-sdk/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js');
 files.set('/speech-processor.js','node_modules/microsoft-cognitiveservices-speech-sdk/distrib/browser/speech-processor.js');
@@ -21,11 +22,14 @@ const messages={
   AZURE_AUTH_FAILED:'Azure weigert de aanmelding. Controleer sleutel en regio lokaal.',
   AZURE_QUOTA:'Azure heeft een limiet bereikt. Controleer quota en kosten voordat je opnieuw start.',
   AZURE_TIMEOUT:'Azure reageert niet op tijd. Audio is niet automatisch opnieuw gestart.',
-  AZURE_UNAVAILABLE:'Azure is niet bereikbaar. Controleer netwerk en regio en start handmatig opnieuw.'
+  AZURE_UNAVAILABLE:'Azure is niet bereikbaar. Controleer netwerk en regio en start handmatig opnieuw.',
+  FEEDBACK_UNAVAILABLE:'Je melding is niet bewaard. Probeer het opnieuw; je tekst blijft staan.',
+  FEEDBACK_FULL:'De lokale meldingenopslag is vol. Vraag de beheerder om hulp.'
 };
 
 export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.now,timers=globalThis,leaseMs=15000}={}){
   const bootCandidate=readCandidate(candidateRoot),csrf=randomBytes(32).toString('hex'),clients=new Set();
+  const feedback=new FeedbackStore(env.ALHOR_FEEDBACK_FILE||undefined);
   const portalPort=String(env.ALHOR_PORTAL_PORT||'18080');
   if(!/^\d+$/.test(portalPort)||Number(portalPort)<1||Number(portalPort)>65535)throw new Error('Ongeldige lokale Portal-poort.');
   const portalHome=`http://127.0.0.1:${Number(portalPort)}/`;
@@ -74,6 +78,13 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         res.writeHead(200,{'Content-Type':'text/event-stream','Connection':'keep-alive'});
         clients.add(res);res.write(`data: ${JSON.stringify(state)}\n\n`);req.on('close',()=>clients.delete(res));return;
       }
+      if(req.method==='GET'&&/^\/api\/feedback\/[0-9a-f-]{36}$/.test(path)){
+        if(req.headers['x-app-token']!==csrf)return error(403,'INVALID_REQUEST');
+        try{
+          const item=await feedback.get(path.slice('/api/feedback/'.length));
+          return item?reply(200,{id:item.id,body:item.body,createdAt:item.createdAt}):reply(404,{error:'Melding niet gevonden.',errorCode:'INVALID_REQUEST'});
+        }catch{return error(503,'FEEDBACK_UNAVAILABLE');}
+      }
       if(req.method==='POST'&&path==='/api/bootstrap'){
         if(req.headers.origin!==origin||req.headers['x-local-app']!=='1')return error(403,'INVALID_REQUEST');
         return reply(200,{csrf,configured,region:REGIONS.includes(region)?region:null});
@@ -83,6 +94,15 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         const chunks=[];let size=0;
         for await(const chunk of req){size+=chunk.length;if(size>16000)return error(413,'INVALID_REQUEST');chunks.push(chunk);}
         let data;try{data=JSON.parse(Buffer.concat(chunks).toString('utf8')||'{}');}catch{return error(400,'INVALID_REQUEST');}
+        if(path==='/api/feedback'){
+          if(!data||typeof data!=='object'||Array.isArray(data)||typeof data.body!=='string'||!data.body.trim()
+            ||data.body.trim().length>800||typeof data.submissionKey!=='string'
+            ||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(data.submissionKey))return error(400,'INVALID_REQUEST');
+          try{
+            const item=await feedback.save(data.submissionKey,data.body.trim());
+            return reply(200,{id:item.id,body:item.body,createdAt:item.createdAt});
+          }catch(cause){return error(cause?.code==='FEEDBACK_FULL'?507:503,cause?.code==='FEEDBACK_FULL'?'FEEDBACK_FULL':'FEEDBACK_UNAVAILABLE');}
+        }
         if(!data||typeof data!=='object'||Array.isArray(data)||typeof data.owner!=='string'||!data.owner||data.owner.length>80)return error(400,'INVALID_REQUEST');
         if(owner&&owner!==data.owner)return error(409,'OPERATOR_BUSY');
         if(path==='/api/claim'){owner=data.owner;seen=now();generation++;return reply(200,{generation});}
@@ -135,7 +155,6 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         const selectedHome=Object.hasOwn(portalContexts,context)?portalContexts[context]:null;
         const returnHome=selectedHome?`${selectedHome}app/operating/?return=vrijdagpreek`:(env.ALHOR_PORTAL_PORT?portalHome:null);
         if(returnHome)bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"',`class="platform-return" href="${returnHome}"`));
-        bytes=Buffer.from(bytes.toString('utf8').replace('class="improvement-link" href="http://127.0.0.1:18080/app/operating/feedback/new/?app=vrijdagpreek"',`class="improvement-link" href="${selectedHome||portalHome}app/operating/feedback/new/?app=vrijdagpreek"`));
       }
       res.writeHead(200,{'Content-Type':mime});res.end(bytes);
     }catch{if(!res.headersSent)error(500,'INVALID_REQUEST');else res.end();}

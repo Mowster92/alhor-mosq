@@ -1,6 +1,10 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {request} from 'node:http';
+import {mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
+import {randomUUID} from 'node:crypto';
 import {createApp} from '../server.mjs';
 
 const response=(status=200,body='short-lived-test-token')=>new Response(body,{status});
@@ -58,7 +62,7 @@ test('Origin, CSRF, content type, local Host and private-file boundaries stay gu
     assert.equal((await h.post('state',caption(session),headers)).status,403,JSON.stringify(headers));
   const wrongHost=await new Promise((resolve,reject)=>{const req=request(h.base+'/',{headers:{Host:'localhost'}},res=>{res.resume();res.on('end',()=>resolve(res.statusCode));});req.on('error',reject);req.end();});
   assert.equal(wrongHost,403);
-  for(const path of ['/.env','/server.mjs','/data/preparations.json','/preparation.mjs','/example-context.js'])assert.equal((await fetch(h.base+path)).status,404);
+  for(const path of ['/.env','/server.mjs','/data/preparations.json','/data/feedback.json','/preparation.mjs','/example-context.js'])assert.equal((await fetch(h.base+path)).status,404);
   assert.equal((await fetch(h.base+'/api/bootstrap')).status,404);
   const operator=await fetch(h.base+'/operator.js');assert.equal(operator.status,200);assert.match(operator.headers.get('Content-Type'),/javascript/);
   const bad=await fetch(h.base+'/api/state',{method:'POST',headers:{Origin:h.base,'X-App-Token':h.boot.csrf,'Content-Type':'application/json'},body:'{'});
@@ -131,13 +135,65 @@ test('configured local Portal entry and return preserve cross-site API protectio
   assert.equal(h.calls.length,0);
 });
 
-test('improvement entrance carries only the fixed app key to configured Portal',async t=>{
+test('operator feedback stays in Vrijdagpreek and is absent from the audience display',async t=>{
   const h=await setup(t,{env:{ALHOR_PORTAL_PORT:'18180'}});
   const html=await fetch(h.base+'/').then(r=>r.text());
-  assert.match(html,/class="improvement-link" href="http:\/\/127\.0\.0\.1:18180\/app\/operating\/feedback\/new\/\?app=vrijdagpreek" target="_blank" rel="noopener noreferrer"/);
+  assert.match(html,/id="operator-feedback"/);
+  assert.match(html,/id="feedback-form"/);
+  assert.doesNotMatch(html,/app\/operating\/feedback\/new/);
   assert.equal(h.calls.length,0);
   const display=await fetch(h.base+'/display.html').then(r=>r.text());
-  assert.doesNotMatch(display,/improvement-link/);
+  assert.doesNotMatch(display,/operator-feedback|feedback-form/);
+});
+
+test('operator report saves once without a live lease, survives restart and excludes captions',async t=>{
+  const folder=await mkdtemp(join(tmpdir(),'vrijdagpreek-feedback-'));
+  t.after(()=>rm(folder,{recursive:true,force:true}));
+  const env={ALHOR_FEEDBACK_FILE:join(folder,'feedback.json')};
+  const h=await setup(t,{env});
+  const session=await h.claim();
+  assert.equal((await h.post('state',caption(session))).status,200);
+  const payload={submissionKey:randomUUID(),body:'Fictieve proef: de knop was onduidelijk.'};
+  const first=await h.post('feedback',payload);
+  assert.equal(first.status,200);
+  const saved=await first.json();
+  assert.equal(saved.body,payload.body);
+  assert.deepEqual(await (await h.post('feedback',payload)).json(),saved);
+  assert.equal((await fetch(h.base+'/api/feedback/'+saved.id)).status,403);
+  const receipt=await fetch(h.base+'/api/feedback/'+saved.id,{headers:{'X-App-Token':h.boot.csrf}});
+  assert.equal(receipt.status,200);
+  assert.deepEqual(await receipt.json(),saved);
+  const bytes=await readFile(env.ALHOR_FEEDBACK_FILE,'utf8');
+  assert.equal(JSON.parse(bytes).reports.length,1);
+  assert.doesNotMatch(bytes,/كلمات اختبار|Nederlandse proeftekst|synthetic-secret/);
+  const restarted=await setup(t,{env});
+  const after=await fetch(restarted.base+'/api/feedback/'+saved.id,{headers:{'X-App-Token':restarted.boot.csrf}});
+  assert.deepEqual(await after.json(),saved);
+  assert.equal(restarted.calls.length,0);
+});
+
+test('report validation and same-origin token rules reject malformed or cross-site writes',async t=>{
+  const folder=await mkdtemp(join(tmpdir(),'vrijdagpreek-feedback-'));
+  t.after(()=>rm(folder,{recursive:true,force:true}));
+  const h=await setup(t,{env:{ALHOR_FEEDBACK_FILE:join(folder,'feedback.json')}});
+  for(const payload of [{body:'',submissionKey:randomUUID()},{body:'x'.repeat(801),submissionKey:randomUUID()},
+    {body:'Fictief',submissionKey:'wrong'}])assert.equal((await h.post('feedback',payload)).status,400);
+  const valid={body:'Fictief',submissionKey:randomUUID()};
+  assert.equal((await h.post('feedback',valid,{'X-App-Token':'wrong'})).status,403);
+  assert.equal((await h.post('feedback',valid,{Origin:'https://evil.example'})).status,403);
+  assert.equal(h.calls.length,0);
+});
+
+test('an unreadable report store is not overwritten by a new submission',async t=>{
+  const folder=await mkdtemp(join(tmpdir(),'vrijdagpreek-feedback-'));
+  t.after(()=>rm(folder,{recursive:true,force:true}));
+  const file=join(folder,'feedback.json'),original='synthetic corrupted store';
+  await writeFile(file,original);
+  const h=await setup(t,{env:{ALHOR_FEEDBACK_FILE:file}});
+  const response=await h.post('feedback',{body:'Fictief',submissionKey:randomUUID()});
+  assert.equal(response.status,503);
+  assert.equal((await response.json()).errorCode,'FEEDBACK_UNAVAILABLE');
+  assert.equal(await readFile(file,'utf8'),original);
 });
 
 test('daily and development Portal return contexts stay fixed per tab and on reload',async t=>{
@@ -146,7 +202,8 @@ test('daily and development Portal return contexts stay fixed per tab and on rel
     for(let reload=0;reload<2;reload++){
       const html=await fetch(h.base+'/?portal='+context).then(r=>r.text());
       assert.ok(html.includes(`class="platform-return" href="${home}app/operating/?return=vrijdagpreek" target="_blank" rel="noopener noreferrer"`));
-      assert.ok(html.includes(`class="improvement-link" href="${home}app/operating/feedback/new/?app=vrijdagpreek"`));
+      assert.ok(html.includes('id="operator-feedback"'));
+      assert.ok(!html.includes('/app/operating/feedback/new/'));
     }
   }
   for(const context of ['https://evil.example','//evil.example','constructor','__proto__']){

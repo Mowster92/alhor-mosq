@@ -10,8 +10,14 @@ services:
       LISTEN_HOST: 0.0.0.0
       PORT: "${MOSQUE_PORT:-18182}"
       ALHOR_PORTAL_PORT: "${ALHOR_PORTAL_PORT:-18080}"
+      ALHOR_FEEDBACK_FILE: /app/data/feedback.json
+    volumes:
+      - feedback-data:/app/data
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:' + process.env.PORT + '/api/identity').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 5s
       timeout: 3s
       retries: 12
+
+volumes:
+  feedback-data:

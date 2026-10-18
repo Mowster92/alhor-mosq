@@ -41,6 +41,9 @@ dat spraak actief is. Publicatie of bronidentiteit bewijst geen vertaalkwaliteit
 Eerdere UI- en spraakproeven zijn gedateerd bewijs in `results/vrijdagpreek-agent/`
 en Git-historie; die opdrachten worden niet automatisch opnieuw uitgevoerd.
 
-Geen gegevens, sleutels, opnamen of transcripties kopiëren. `apps/vrijdagpreek/data`
-wordt door de liveversie niet geladen. Providergebruik, microfoon, hosting en toegang
-vragen een afzonderlijke opdracht. Care en andere appwerkplekken blijven buiten dit werk.
+Geen gegevens, sleutels, opnamen of transcripties kopiëren. De lokale
+productmelding bewaart alleen expliciet getypte tekst in de Windows-state-map
+of het aparte Docker-volume; de oude `apps/vrijdagpreek/data`-voorbereiding
+wordt door de liveversie niet geladen. Providergebruik, microfoon, hosting en
+toegang vragen een afzonderlijke opdracht. Care en andere appwerkplekken
+blijven buiten dit werk.

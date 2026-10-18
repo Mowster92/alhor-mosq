@@ -11,6 +11,14 @@ in de eigen sandboxwerkplek. Lees `dev/vrijdagpreek/ONBOARDING.md` voor de
 begrensde opdracht, bronnen, tests en dagelijkse ingang `VRIJDAGPREEK-DEV.cmd`.
 Family en Care worden hiermee niet gewijzigd.
 
+De lokale ALHOR-feedbackroute is app-eigen: de Vrijdagpreek-operator schrijft
+een korte productmelding en krijgt een blijvende referentie. De server bewaart
+alleen die expliciete tekst in een atomair vervangen lokaal bestand. Windows
+gebruikt de bestaande afgeschermde ALHOR-state-map; Docker een eigen volume.
+De publieksweergave, audio en ondertitels blijven buiten deze opslag. Zonder
+app-login is dit alleen geschikt voor de vertrouwde lokale operatoromgeving;
+toegang vanaf andere gebruikers/apparaten vraagt later een echte rolgrens.
+
 # Projectbasis
 
 ## Gekozen toepassing — 12 oktober2026

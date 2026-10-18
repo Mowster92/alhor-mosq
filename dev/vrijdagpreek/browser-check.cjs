@@ -2,6 +2,7 @@
 const {chromium}=require('playwright');
 const fs=require('node:fs');
 const path=require('node:path');
+const os=require('node:os');
 const {pathToFileURL}=require('node:url');
 const artifacts=process.env.ARTIFACTS_DIR||'/artifacts';
 const source=process.env.APP_SOURCE||'/source/apps/vrijdagpreek';
@@ -12,12 +13,13 @@ const sdkFixture=`window.SpeechSDK={
  AudioConfig:{fromStreamInput(){return {setProperty(){},close(){}}}},
  TranslationRecognizer:class{constructor(){window.__qaRecognizer=this;}startContinuousRecognitionAsync(ok){ok();this.timer=setTimeout(()=>this.sessionStarted?.(),20);}close(){clearTimeout(this.timer);}}
 };`;
-let browser,server;
+let browser,server,feedbackDir;
 (async()=>{
  fs.mkdirSync(artifacts,{recursive:true});
  const {createApp}=await import(pathToFileURL(path.join(source,'server.mjs')));
  let deny=false,tokenCalls=0;
- server=createApp({env:{AZURE_SPEECH_REGION:'northeurope',AZURE_SPEECH_KEY:'synthetic-ui-fixture'},fetcher:async()=>{tokenCalls++;return new Response(deny?'':'synthetic-short-lived-token',{status:deny?401:200});}});
+ feedbackDir=fs.mkdtempSync(path.join(os.tmpdir(),'vrijdagpreek-browser-feedback-'));
+ server=createApp({env:{AZURE_SPEECH_REGION:'northeurope',AZURE_SPEECH_KEY:'synthetic-ui-fixture',ALHOR_FEEDBACK_FILE:path.join(feedbackDir,'feedback.json')},fetcher:async()=>{tokenCalls++;return new Response(deny?'':'synthetic-short-lived-token',{status:deny?401:200});}});
  await new Promise(resolve=>server.listen(0,'127.0.0.1',resolve));const base='http://127.0.0.1:'+server.address().port;
  browser=await chromium.launch({headless:true,args:['--use-fake-device-for-media-stream','--use-fake-ui-for-media-stream']});
  const context=await browser.newContext({viewport:{width:1000,height:800}}),page=await context.newPage();
@@ -31,6 +33,19 @@ let browser,server;
  await page.goto(base+'/?portal=docker');await page.waitForFunction(()=>document.querySelector('#azure-state')?.textContent.includes('Azure ingesteld'));
  if(await page.locator('.platform-return').getAttribute('href')!=='http://127.0.0.1:18080/app/operating/?return=vrijdagpreek')throw Error('Docker Portal return changed');
  await capture('operator-idle-1000');
+ await page.locator('#operator-feedback summary').click();
+ await capture('operator-feedback-1000');
+ await page.locator('#feedback-text').fill('Fictieve browserproef: de knop was onduidelijk.');
+ await page.getByRole('button',{name:'Melding bewaren'}).click();
+ await page.waitForFunction(()=>!document.querySelector('#feedback-receipt').hidden);
+ const feedbackReference=await page.locator('[data-feedback-reference]').textContent();
+ await page.reload();
+ await page.waitForFunction(()=>!document.querySelector('#feedback-receipt').hidden);
+ if(await page.locator('[data-feedback-reference]').textContent()!==feedbackReference)throw Error('Report receipt was not retained after reload');
+ if(tokenCalls!==0)throw Error('Feedback requested a cloud token');
+ checks.push('Operator report saves and reopens without audio or Azure');
+ await capture('operator-feedback-receipt-1000');
+ await page.goto(base+'/?portal=docker');await page.waitForFunction(()=>document.querySelector('#azure-state')?.textContent.includes('Azure ingesteld'));
  await page.locator('#open-display').focus();await capture('operator-focus-1000');
  await page.locator('.technical').evaluate(element=>element.open=true);await capture('operator-details-1000');await page.locator('.technical').evaluate(element=>element.open=false);
  await page.locator('#list-mics').click();await page.waitForFunction(()=>document.querySelector('#device').options.length>0);
@@ -59,4 +74,4 @@ let browser,server;
  if(externalRequests)errors.push('UI requested an external asset or service');
  const report={passed:!errors.length,checks,errors,tokenCalls,externalRequests,provider:'simulated',physicalMicrophone:false,azureAudio:false};
  fs.writeFileSync(path.join(artifacts,'browser-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));if(errors.length)process.exitCode=1;
-})().catch(error=>{console.error(JSON.stringify({passed:false,error:error.message}));process.exitCode=1;}).finally(async()=>{await browser?.close();server?.closeAllConnections();if(server)await new Promise(resolve=>server.close(resolve));});
+})().catch(error=>{console.error(JSON.stringify({passed:false,error:error.message}));process.exitCode=1;}).finally(async()=>{await browser?.close();server?.closeAllConnections();if(server)await new Promise(resolve=>server.close(resolve));if(feedbackDir)fs.rmSync(feedbackDir,{recursive:true,force:true});});

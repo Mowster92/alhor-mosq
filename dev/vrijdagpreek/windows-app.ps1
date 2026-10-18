@@ -232,6 +232,7 @@ function Start-OwnedApp($Paths,$Candidate,[pscredential]$Credential) {
     $start.ArgumentList.Add((Join-Path $Paths.AppRoot 'server.mjs'))
     $start.WorkingDirectory=$Paths.AppRoot;$start.UseShellExecute=$false;$start.CreateNoWindow=$true
     $start.Environment['AZURE_SPEECH_REGION']=$Credential.UserName
+    $start.Environment['ALHOR_FEEDBACK_FILE']=(Join-Path $Paths.StateRoot 'feedback.json')
     $pointer=[IntPtr]::Zero
     try {
         $pointer=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($Credential.Password)

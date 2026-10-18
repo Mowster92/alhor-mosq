@@ -30,9 +30,14 @@
         <p class="translation-note">Automatische vertaling kan fouten bevatten. Controleer betekenis en leesbaarheid tijdens de proef.</p>
       </section>
     </div>
-    <p class="small-note"><a class="improvement-link" href="http://127.0.0.1:18080/app/operating/feedback/new/?app=vrijdagpreek" target="_blank" rel="noopener noreferrer">Verbetering voorstellen</a></p>
+    <details class="operator-feedback" id="operator-feedback"><summary>Probleem met de app melden</summary>
+      <p>Beschrijf alleen wat in Vrijdagpreek niet werkte. Audio en ondertitels worden niet automatisch meegestuurd.</p>
+      <form id="feedback-form"><label for="feedback-text">Wat gebeurde er, en wat zou helpen?</label><textarea id="feedback-text" maxlength="800" rows="4" required></textarea><button type="submit">Melding bewaren</button></form>
+      <p id="feedback-status" role="status" aria-live="polite"></p>
+      <section id="feedback-receipt" hidden><h2>Melding bewaard</h2><p>Referentie: <strong data-feedback-reference></strong></p><p data-feedback-body></p><p><a data-feedback-link href="">Deze melding later terugzien</a></p><p>Dit start geen ontwikkelwerk.</p></section>
+    </details>
     <details class="technical"><summary>Over deze proefversie</summary><p id="candidate-status">Versie controleren…</p><p>De bediening en het publiekscherm werken op deze pc. De aansluiting op de moskee-installatie wordt apart getest.</p></details>
   </main>
-  <script src="sdk.js"></script><script type="module" src="app.js"></script>
+  <script src="sdk.js"></script><script type="module" src="app.js"></script><script type="module" src="feedback.js"></script>
 </body>
 </html>
