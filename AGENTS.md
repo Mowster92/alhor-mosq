@@ -32,3 +32,7 @@ in Codex; de ALHOR-feedbackroute draagt context, geen ondertitels of audio.
 Git-bronpublicatie, live/providergebruik, microfoon en ledengegevens blijven
 afzonderlijke grenzen; bronpublicatie of een merge activeert die niet. De
 oudere inrichtingsopdracht is historie.
+
+## Local checkpoint commits — 22 October 2026
+
+For completion of currently authorised local work, make a scoped checkpoint commit after the relevant checks, following [the platform policy](../../projects/alhor/README.md#local-source-checkpoints). Preserve unrelated changes and exclude private data, secrets and recovery material. Push, merge, publication and deployment still require explicit authority. This is not permission to resume a paused product or change its delivery owner.
