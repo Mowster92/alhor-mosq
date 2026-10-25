@@ -42,7 +42,10 @@ blijven apart beschikbaar in de ontwikkelrepository.
    open PowerShell 7 in deze map en voer uit:
    `pwsh -NoProfile -File dev/vrijdagpreek/windows-app.ps1 -Action configure`.
    Vul alleen daar de eigen Azure Speech-regio/sleutel in; nooit in chat.
-   Daarna opnieuw `START-MOSQUE.cmd`. Configuratie blijft via Windows DPAPI
+   Klik na instellen eerst Stop in Vrijdagpreek en sluit de shell beheerd af met
+   `pwsh -NoProfile -File dev/vrijdagpreek/windows-app.ps1 -Action stop`;
+   open daarna opnieuw `START-MOSQUE.cmd`, zodat de nieuwe instelling wordt geladen.
+   Configuratie blijft via Windows DPAPI
    beschermd voor deze gebruiker op deze pc in `%LOCALAPPDATA%\ALHOR\Vrijdagpreek`.
    Kopieer geen credentialbestand van Mo of een andere pc/gebruiker.
 
