@@ -1,3 +1,15 @@
+## Owner acceptance · 25 October 2026
+
+Mo tried the local Portal → Mosque → Vrijdagpreek route: “looks pretty good”
+and “works locally”. This accepts the local app experience, not live speech
+quality or installation at the mosque.
+
+Next: prepare a portable Windows handoff, rehearse the real microphone and
+second-screen route, then use Monday to let the mosque request one small AI-built
+change and test it. No extra mosque modules before that first use.
+Open: installation on the mosque PC, its Azure configuration and sound setup,
+and Arabic/Dutch assessment of live translation. No member data or public release.
+
 ## Mosque home — lokale hervatting voor maandag
 
 Mo heeft de lokale Mosque-home → Vrijdagpreek-route hervat en goedgekeurd.
