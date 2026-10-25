@@ -165,7 +165,8 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         const selectedHome=Object.hasOwn(portalContexts,context)?portalContexts[context]:null;
         const returnHome=selectedHome?`${selectedHome}app/operating/?return=vrijdagpreek`:(env.ALHOR_PORTAL_PORT?portalHome:null);
         if(returnHome)bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"',`class="platform-return" href="${returnHome}"`));
-        if(selectedHome){
+        if(context==='standalone')bytes=Buffer.from(bytes.toString('utf8').replace(/<a class="platform-return"[^>]*>.*?<\/a>/s,'<span class="standalone-context">Zelfstandig geopend · Mosque</span>').replace('Open Mosque via ALHOR.','Open Mosque via START-MOSQUE.cmd.'));
+        if(selectedHome||context==='standalone'){
           const suffix=`?portal=${context}`;
           bytes=Buffer.from(bytes.toString('utf8').replace('class="module-open" href="/"',`class="module-open" href="/${suffix}"`).replace('class="mosque-return" href="/mosque"',`class="mosque-return" href="/mosque${suffix}"`));
         }

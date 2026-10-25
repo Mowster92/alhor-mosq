@@ -25,6 +25,27 @@ gereedheid en configuratie. Acties: `ensure`, `open`, `restart`, `stop`, `status
 De twee oude appmap-wrappers zijn verwijderd; alle acties blijven rechtstreeks
 beschikbaar. Lees `apps/vrijdagpreek/README.md` voor bediening en privacy.
 
+## Portable Windows-handoff
+
+`START-MOSQUE.cmd` is de zelfstandige ingang zonder Portal of Docker. Installatie,
+update, herstel en de 10-minutenrepetitie staan in de root-README, sectie
+**Windows zonder Portal (portable)**. De shell vraagt geen Azure-instelling;
+`configure` blijft de expliciete lokale DPAPI-route voor de bestemminggebruiker.
+`?portal=standalone` verbergt alleen de niet-beschikbare platformterugkeer en
+bewaart home ↔ operator; `local`/`docker` houden hun vaste doeladressen.
+
+Release: `node scripts/build-portable.mjs <commit> results/mosque-windows.zip`.
+De exacte allowlist komt uit Git-objecten, met een nieuwe bronmanifest-identiteit
+voor die inhoud (niet de ontwikkel-candidate). De bestemming verifieert de
+meegeleverde hashes zonder Git, Python of ontwikkeltests; installatie blijft
+`npm ci --ignore-scripts` uit de checkpoint-lockfile. Niet digitaal ondertekend:
+herkomst/overdracht blijft een eigenaarcontrole. Resultaten zijn geen tweede bron.
+
+Regressie: `npm test` omvat ontbrekende Node/npm/pwsh, Node <22, andere
+gebruikersnamen/spaties, standalone-navigatie, gewijzigde releasebytes en
+controllerweigering zonder browser. Bestaande eigendoms-/poort-/busychecks blijven
+intact. Hardware, echte accountoverdracht, microfoon en provider zijn geen fixturebewijs.
+
 ## Bron en controles
 
 Werk in dit repository, appmap `apps/vrijdagpreek`; geen losse runtime-bronkopieën.

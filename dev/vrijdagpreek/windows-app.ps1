@@ -205,6 +205,13 @@ function Prepare-AppSource($Paths) {
         try {& npm.cmd ci --ignore-scripts | Out-Host;if($LASTEXITCODE -ne 0){throw 'Installatie mislukt; de bestaande app blijft draaien.'}}
         finally {Pop-Location}
     }
+    if(Test-Path -LiteralPath (Join-Path $Paths.RepoRoot 'portable-release.json')){
+        & node (Join-Path $Paths.RepoRoot 'scripts\verify-portable.mjs') | Out-Host
+        if($LASTEXITCODE -ne 0){throw 'Portable broncontrole mislukt. Pak de originele ZIP opnieuw uit; de bestaande app is niet gestopt.'}
+        $candidate=Get-ExpectedCandidate $Paths
+        if($candidate.state -ne 'identified'){throw 'Portable bronidentiteit onbekend; de bestaande app is niet gestopt.'}
+        return $candidate
+    }
     Write-Host 'Nieuwe bron controleren en de lokale ontwikkelversie voorbereiden. De bestaande app blijft intussen draaien.'
     if(!(Test-Path -LiteralPath $Paths.ActivationScript)){throw 'De lokale activatiecontrole ontbreekt. De bestaande app is niet gestopt.'}
     Push-Location $Paths.RepoRoot
