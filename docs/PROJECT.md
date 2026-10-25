@@ -1,3 +1,23 @@
+## ALHOR visual finish · 25 oktober 2026
+
+Home en operator delen nu het rustige ALHOR canvas `#e9edf0`, oppervlak
+`#f7f8f6`, inkt `#203630` en Mosque-accent `#215d55`. Het bestaande logo
+behoudt exact zijn silhouet; alleen de lokale vullingen zijn groen/inkt.
+Geen decoratieve verlopen of extra modulekaarten. De operator toont status en
+ondertiteling vóór secundaire publieksinstellingen, ook in lees-/toetsvolgorde.
+De bestaande tekstgrootte en licht/donker-keuze blijven de comfortbediening;
+geen extra themaopslag of verandering aan audio/spraak. Publiek blijft standaard
+zwart op wit en respecteert de gekozen hoogcontrastpresentatie.
+
+Controle: 56 Node-tests, `npm run check`, repositorycontrole, portable
+prerequisite/source-proeven en twee geïsoleerde browserproeven:
+`mosque-home-browser-check.cjs` en `visual-suite-browser-check.cjs`.
+Deze gebruiken tijdelijke loopbackservers/opslag, desktop en 390/320px mobiel.
+Geen bestaande modulekeuzes geschreven, geen provider of microfoon gebruikt.
+Screenshots zijn lokale bewijsstukken, geen bewijs van livevertaling.
+Geen canonieke 8080-runtime herstart of geactiveerd; integratie/activering door
+het platformtraject blijft apart.
+
 ## Lokale Mosque UX en modulebeheer · 25 oktober 2026
 
 Mo hervatte expliciet verzoek `d9524e68-c52f-4508-9595-5684c840a0c4`

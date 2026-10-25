@@ -25,6 +25,11 @@
         <p class="small-note">Audio wordt alleen na Start verstuurd. Er wordt hier geen opname opgeslagen. Stop de vertaling voordat je naar Mosque home gaat.</p>
       </section>
       <section class="translation-workspace" aria-labelledby="caption-title">
+        <div id="connection" class="connection" data-phase="idle" role="status" aria-live="polite"><span class="status-dot" aria-hidden="true"></span><span id="status">Klaar om te starten</span></div>
+        <div id="error-panel" class="error-panel" role="alert" hidden><h2>Vertaling gestopt</h2><p id="error-message"></p><details><summary>Foutcode</summary><code id="error-code"></code></details></div>
+        <article class="caption-preview"><div class="caption-heading"><h2 id="caption-title">Nederlandse ondertiteling</h2><span id="caption-kind"></span></div><p id="dutch" class="dutch placeholder">Hier verschijnt de vertaling zodra je spreekt.</p><button id="clear" class="text-button" type="button">Tekst wissen</button></article>
+        <details class="arabic-panel" open><summary>Herkende Arabische tekst</summary><p id="arabic" lang="ar" dir="rtl">—</p></details>
+        <p class="translation-note">Automatische vertaling kan fouten bevatten. Controleer betekenis en leesbaarheid tijdens de proef.</p>
         <section class="presentation-panel" aria-labelledby="presentation-title">
           <div><h2 id="presentation-title">Leesbaarheid publiek</h2><p>Alleen de weergave. Dit start geen audio of vertaling.</p></div>
           <form id="presentation-form"><div class="presentation-fields">
@@ -35,11 +40,6 @@
           <p id="presentation-status" role="status" aria-live="polite">Publieksweergave laden…</p>
           <p class="presentation-note">Geldt voor alle publieksvensters tot de lokale server herstart. Niet op schijf bewaard. Gebruik Volledig scherm in het publieksvenster; Esc sluit dat af.</p>
         </section>
-        <div id="connection" class="connection" data-phase="idle" role="status" aria-live="polite"><span class="status-dot" aria-hidden="true"></span><span id="status">Klaar om te starten</span></div>
-        <div id="error-panel" class="error-panel" role="alert" hidden><h2>Vertaling gestopt</h2><p id="error-message"></p><details><summary>Foutcode</summary><code id="error-code"></code></details></div>
-        <article class="caption-preview"><div class="caption-heading"><h2 id="caption-title">Nederlandse ondertiteling</h2><span id="caption-kind"></span></div><p id="dutch" class="dutch placeholder">Hier verschijnt de vertaling zodra je spreekt.</p><button id="clear" class="text-button" type="button">Tekst wissen</button></article>
-        <details class="arabic-panel" open><summary>Herkende Arabische tekst</summary><p id="arabic" lang="ar" dir="rtl">—</p></details>
-        <p class="translation-note">Automatische vertaling kan fouten bevatten. Controleer betekenis en leesbaarheid tijdens de proef.</p>
       </section>
     </div>
     <details class="operator-feedback" id="operator-feedback"><summary>Probleem met de app melden</summary>
