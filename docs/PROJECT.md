@@ -1,3 +1,40 @@
+## Lokale Mosque UX en modulebeheer · 25 oktober 2026
+
+Mo hervatte expliciet verzoek `d9524e68-c52f-4508-9595-5684c840a0c4`
+(`ux ui + raamwerk voor moskee app en beheer van subapps`, tekst `test`).
+Dit vervangt alleen de eerdere pauze op home/frameworkwerk: geen extra
+werkende modules, livegang of cliënt-/ledengegevens.
+
+`/mosque` biedt aparte operator- en publieksingangen en lokaal modulebeheer:
+Vrijdagpreek tonen/verbergen en als favoriet markeren. Alleen expliciet
+**Keuzes opslaan** schrijft; annuleren en laden schrijven niets. Verbergen
+is navigatieorganisatie, geen uitschakeling of toegangscontrole. De lege
+startpagina biedt herstel via het blijvend bereikbare Modulebeheer. Er is
+één werkende module; gebedstijden, leden en activiteiten blijven niet gebouwd.
+
+De bestaande Node-app gebruikt `GET/POST /api/modules`, de exacte bestaande
+Host/Origin/CSRF-grens en een strikt schema zonder vrije routes of modules.
+Opslag: apart atomair vervangen `modules.json`; Windows-controller gebruikt
+de bestaande app-eigen StateRoot via `ALHOR_MODULES_FILE`, anders app-eigen
+`data/modules.json`. Tests gebruiken tijdelijke mappen. Beschadigde opslag
+wordt niet stilzwijgend overschreven. Dit zijn gedeelde vertrouwde lokale
+instellingen zonder login, geen gebruikers- of rollenadministratie.
+
+Home laadt alleen voorkeuren; bootstrap gebeurt pas bij expliciet opslaan.
+Geen speech-import, leaseclaim/verversing, microfoon, provider of audioactie.
+Vaste local/docker/standalone-terugkeercontexten blijven intact. Nieuw bronwerk
+wordt niet automatisch geactiveerd; runtime-activering blijft een aparte stap.
+De onderstaande acceptatie en apparatuur-/taalproef blijven apart gelden.
+
+Controle: `npm test`, `npm run check`, `python scripts/check_repository.py`,
+de synthetische Windows-controllerproef en
+`dev/vrijdagpreek/mosque-home-browser-check.cjs` (Playwright uit externe
+toolomgeving via `PLAYWRIGHT_MODULE`, screenshots via `ARTIFACTS_DIR`).
+De browserproef gebruikt uitsluitend een tijdelijke loopbackserver en tijdelijke
+voorkeuren: desktop 1440px, mobiel 390/320px, annuleren, favoriet/herladen,
+verbergen/herstellen, opslagfout/herproberen, alle drie terugkeercontexten en
+publiekspopup. Geen canonieke runtime-herstart of echte spraakproef.
+
 ## Owner acceptance · 25 October 2026
 
 Mo tried the local Portal → Mosque → Vrijdagpreek route: “looks pretty good”
@@ -19,8 +56,8 @@ publiekscherm. Alleen Vrijdagpreek is beschikbaar. Gebedstijden, ledenbeheer,
 activiteiten en andere voorgestelde modules zijn niet gebouwd.
 
 Hergebruik: ALHOR-logo, lokaal Inter-lettertype, Node-server en bestaande
-spraakbediening. Geen nieuw framework, database, login of provider. Home is
-statische HTML zonder scripts en opent geen microfoon. De navigatie bewaart
+spraakbediening. Geen nieuw framework, database, login of provider. Home heeft
+nu een klein lokaal voorkeurscript en opent geen microfoon. De navigatie bewaart
 alleen de vaste context `?portal=local` (18180) of `?portal=docker` (18080),
 nooit een opgegeven URL. Alleen `/mosque` is aan de exacte statische en
 Portal-documentnavigatie-allowlists toegevoegd; Host/Origin/CSRF, toestemming,

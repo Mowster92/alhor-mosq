@@ -3,7 +3,7 @@ import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createHash} from 'node:crypto';
 import {readCandidate} from '../apps/vrijdagpreek/candidate.mjs';
-export const appFiles=['Inter-OFL.txt','InterVariable.woff2','alhor-p1.svg','app.js','candidate.mjs','display.html','display.js','feedback-store.mjs','feedback.js','index.html','live.js','mosque.html','operator.js','package-lock.json','package.json','server.mjs','styles.css'];
+export const appFiles=['Inter-OFL.txt','InterVariable.woff2','alhor-p1.svg','app.js','candidate.mjs','display.html','display.js','feedback-store.mjs','feedback.js','index.html','live.js','module-store.mjs','mosque-home.js','mosque.html','operator.js','package-lock.json','package.json','server.mjs','styles.css'];
 export const releaseFiles=['START-MOSQUE.cmd','README.md','dev/vrijdagpreek/ONBOARDING.md','dev/vrijdagpreek/start-mosque.ps1','dev/vrijdagpreek/windows-app.ps1','dev/vrijdagpreek/windows-child.mjs','scripts/verify-portable.mjs',...appFiles.map(p=>'apps/vrijdagpreek/'+p),'apps/vrijdagpreek/candidate.json'].sort();
 export const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
 export function verifyPortable(root){

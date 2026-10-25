@@ -55,7 +55,7 @@ const candidate={state:'identified',app_key:'vrijdagpreek',version:'synthetic-te
 const server=http.createServer((req,res)=>{
   if(req.url==='/api/events'){res.writeHead(200,{'Content-Type':'text/event-stream'});res.end('data: '+JSON.stringify({active:false,dutch:'Synthetic caption never returned by status'})+'\n\n');return;}
   res.setHeader('Content-Type','application/json');
-  res.end(JSON.stringify(req.url==='/api/bootstrap'?{configured:process.env.AZURE_SPEECH_KEY==='synthetic-fake-key-for-DPAPI-test',region:process.env.AZURE_SPEECH_REGION,feedbackFile:process.env.ALHOR_FEEDBACK_FILE}:candidate));
+  res.end(JSON.stringify(req.url==='/api/bootstrap'?{configured:process.env.AZURE_SPEECH_KEY==='synthetic-fake-key-for-DPAPI-test',region:process.env.AZURE_SPEECH_REGION,feedbackFile:process.env.ALHOR_FEEDBACK_FILE,modulesFile:process.env.ALHOR_MODULES_FILE}:candidate));
 });
 server.listen(TEST_PORT,'127.0.0.1',()=>console.log('Synthetic child ready.'));
 setTimeout(()=>console.log('Synthetic child still writes after launcher return.'),2000);
@@ -69,6 +69,7 @@ setTimeout(()=>console.log('Synthetic child still writes after launcher return.'
   Assert ($childRecord.pid -gt 0) 'a hidden detached server records its own PID'
   Assert ((Get-LocalJson $childPaths.Url -Bootstrap).configured -eq $true) 'the synthetic key is inherited only in child memory'
   Assert ((Get-LocalJson $childPaths.Url -Bootstrap).feedbackFile -eq (Join-Path $childPaths.StateRoot 'feedback.json')) 'feedback stays in the private Windows state directory'
+  Assert ((Get-LocalJson $childPaths.Url -Bootstrap).modulesFile -eq (Join-Path $childPaths.StateRoot 'modules.json')) 'module preferences stay in their own Windows state file'
   Assert ((Get-ActiveTranslation $childPaths.Url) -eq $false) 'the activity probe returns only the lifecycle flag'
   $runtime=Get-RuntimeStatus $childPaths
   Assert ($runtime.owned -and $runtime.configured -and $runtime.identified -and $runtime.process_id -eq $childRecord.pid) 'the readiness result belongs to the recorded listener and configured child'

@@ -24,6 +24,8 @@ test('portable verifier accepts exact checkpoint bytes and rejects tampering and
 });
 
 test('portable release builder exists and requires explicit checkpoint',()=>{
+ assert.ok(appFiles.includes('module-store.mjs'));
+ assert.ok(appFiles.includes('mosque-home.js'));
  const result=spawnSync(process.execPath,[fileURLToPath(new URL('../../../scripts/build-portable.mjs',import.meta.url))],{encoding:'utf8'});
  assert.match(result.stderr,/Expliciete Git-checkpoint/);
  assert.notEqual(result.status,0);

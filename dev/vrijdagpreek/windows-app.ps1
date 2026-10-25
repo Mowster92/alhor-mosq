@@ -250,6 +250,7 @@ function Start-OwnedApp($Paths,$Candidate,[pscredential]$Credential,[switch]$Hom
     $start.Environment.Remove('AZURE_SPEECH_KEY')|Out-Null
     if($Credential){$start.Environment['AZURE_SPEECH_REGION']=$Credential.UserName}
     $start.Environment['ALHOR_FEEDBACK_FILE']=(Join-Path $Paths.StateRoot 'feedback.json')
+    $start.Environment['ALHOR_MODULES_FILE']=(Join-Path $Paths.StateRoot 'modules.json')
     $pointer=[IntPtr]::Zero
     try {
         if($Credential){

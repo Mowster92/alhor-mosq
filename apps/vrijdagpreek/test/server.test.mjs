@@ -26,7 +26,7 @@ async function setup(t,{env={AZURE_SPEECH_REGION:'northeurope',AZURE_SPEECH_KEY:
 }
 const caption=(session,changes={})=>({...session,arabic:'كلمات اختبار',dutch:'Nederlandse proeftekst',mode:'live',phase:'translating',active:true,partial:false,status:'Live — vertaling',...changes});
 
-test('Mosque home is a Dutch, passive shell with one module and safe contextual navigation',async t=>{
+test('Mosque home is a Dutch, speech-passive shell with one module and safe contextual navigation',async t=>{
   const h=await setup(t,{env:{}});
   for(const [query,suffix,portal] of [['?portal=local','?portal=local','http://127.0.0.1:18180/app/operating/?return=vrijdagpreek'],['?portal=docker','?portal=docker','http://127.0.0.1:18080/app/operating/?return=vrijdagpreek'],['?portal=constructor','','http://127.0.0.1:19818/'],['?portal=https://evil.example','','http://127.0.0.1:19818/']]){
     const response=await fetch(h.base+'/mosque'+query);assert.equal(response.status,200);
@@ -37,7 +37,8 @@ test('Mosque home is a Dutch, passive shell with one module and safe contextual 
     assert.ok(html.includes(`class="module-open" href="/${suffix}"`));
     assert.ok(html.includes(`class="platform-return" href="${portal}"`));
     assert.match(html,/Vrijdagpreek/);assert.match(html,/Maandag/);
-    assert.match(html,/Nog niet gebouwd/);assert.doesNotMatch(html,/<script|evil\.example|constructor/);
+    assert.match(html,/Nog niet gebouwd/);assert.doesNotMatch(html,/evil\.example|constructor/);
+    assert.match(html,/<script type="module" src="\/mosque-home.js"><\/script>/);
     const operator=await fetch(h.base+'/'+suffix).then(r=>r.text());
     assert.ok(operator.includes(`class="mosque-return" href="/mosque${suffix}"`));
     assert.match(operator,/Stop.*voordat je.*Mosque home/s);
@@ -45,6 +46,16 @@ test('Mosque home is a Dutch, passive shell with one module and safe contextual 
   assert.equal(h.calls.length,0);assert.equal((await h.snapshot()).active,false);
   assert.equal((await fetch(h.base+'/display.html')).status,200);
   for(const path of ['/mosque/','/mosque.html','/mosque.mjs','/mosque.json','/data/','/server.mjs'])assert.equal((await fetch(h.base+path)).status,404,path);
+});
+
+test('module preferences preserve the active lease and captions without renewing its expiry',async t=>{
+  const dir=await mkdtemp(join(tmpdir(),'mosque-active-modules-'));t.after(()=>rm(dir,{recursive:true,force:true}));
+  const h=await setup(t,{env:{ALHOR_MODULES_FILE:join(dir,'modules.json')}}),session=await h.claim('active-operator');
+  await h.post('state',caption(session));const before=await h.snapshot();h.advance(14000);
+  assert.equal((await h.post('modules',{version:1,modules:{vrijdagpreek:{visible:false,favourite:true}}})).status,200);
+  assert.deepEqual(await h.snapshot(),before);assert.equal(h.calls.length,0);
+  assert.equal((await h.post('claim',{owner:'other-operator'})).status,409);
+  h.advance(1001);assert.equal((await h.snapshot()).errorCode,'SESSION_EXPIRED');
 });
 
 test('presentation updates idle SSE state without audio, ownership or subtitle changes',async t=>{

@@ -4,10 +4,11 @@ import {randomBytes} from 'node:crypto';
 import {fileURLToPath} from 'node:url';
 import {readCandidate} from './candidate.mjs';
 import {FeedbackStore} from './feedback-store.mjs';
+import {ModuleStore,validModules} from './module-store.mjs';
 
 export const REGIONS=['westeurope','northeurope','eastus','westus','eastus2','westus2','uksouth','francecentral','germanywestcentral','swedencentral'];
 const root=new URL('./',import.meta.url);
-const files=new Map(['index.html','display.html','app.js','operator.js','live.js','display.js','feedback.js','styles.css','alhor-p1.svg','InterVariable.woff2','Inter-OFL.txt'].map(name=>['/'+name,name]));
+const files=new Map(['index.html','display.html','app.js','operator.js','live.js','display.js','feedback.js','mosque-home.js','styles.css','alhor-p1.svg','InterVariable.woff2','Inter-OFL.txt'].map(name=>['/'+name,name]));
 files.set('/','index.html');
 files.set('/mosque','mosque.html');
 files.set('/sdk.js','node_modules/microsoft-cognitiveservices-speech-sdk/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js');
@@ -25,12 +26,14 @@ const messages={
   AZURE_TIMEOUT:'Azure reageert niet op tijd. Audio is niet automatisch opnieuw gestart.',
   AZURE_UNAVAILABLE:'Azure is niet bereikbaar. Controleer netwerk en regio en start handmatig opnieuw.',
   FEEDBACK_UNAVAILABLE:'Je melding is niet bewaard. Probeer het opnieuw; je tekst blijft staan.',
-  FEEDBACK_FULL:'De lokale meldingenopslag is vol. Vraag de beheerder om hulp.'
+  FEEDBACK_FULL:'De lokale meldingenopslag is vol. Vraag de beheerder om hulp.',
+  MODULES_UNAVAILABLE:'Modulekeuzes zijn niet beschikbaar of niet bewaard. Probeer opnieuw; je keuzes blijven staan.'
 };
 
 export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.now,timers=globalThis,leaseMs=15000}={}){
   const bootCandidate=readCandidate(candidateRoot),csrf=randomBytes(32).toString('hex'),clients=new Set();
   const feedback=new FeedbackStore(env.ALHOR_FEEDBACK_FILE||undefined);
+  const modules=new ModuleStore(env.ALHOR_MODULES_FILE||undefined);
   const portalPort=String(env.ALHOR_PORTAL_PORT||'18080');
   if(!/^\d+$/.test(portalPort)||Number(portalPort)<1||Number(portalPort)>65535)throw new Error('Ongeldige lokale Portal-poort.');
   const portalHome=`http://127.0.0.1:${Number(portalPort)}/`;
@@ -79,6 +82,9 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         res.writeHead(200,{'Content-Type':'text/event-stream','Connection':'keep-alive'});
         clients.add(res);res.write(`data: ${JSON.stringify(state)}\n\n`);req.on('close',()=>clients.delete(res));return;
       }
+      if(req.method==='GET'&&path==='/api/modules'){
+        try{return reply(200,await modules.get());}catch{return error(503,'MODULES_UNAVAILABLE');}
+      }
       if(req.method==='GET'&&/^\/api\/feedback\/[0-9a-f-]{36}$/.test(path)){
         if(req.headers['x-app-token']!==csrf)return error(403,'INVALID_REQUEST');
         try{
@@ -95,6 +101,10 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         const chunks=[];let size=0;
         for await(const chunk of req){size+=chunk.length;if(size>16000)return error(413,'INVALID_REQUEST');chunks.push(chunk);}
         let data;try{data=JSON.parse(Buffer.concat(chunks).toString('utf8')||'{}');}catch{return error(400,'INVALID_REQUEST');}
+        if(path==='/api/modules'){
+          if(!validModules(data))return error(400,'INVALID_REQUEST');
+          try{return reply(200,await modules.save(data));}catch{return error(503,'MODULES_UNAVAILABLE');}
+        }
         if(path==='/api/feedback'){
           if(!data||typeof data!=='object'||Array.isArray(data)||typeof data.body!=='string'||!data.body.trim()
             ||data.body.trim().length>800||typeof data.submissionKey!=='string'
