@@ -47,11 +47,57 @@ test('Mosque home is a Dutch, passive shell with one module and safe contextual 
   for(const path of ['/mosque/','/mosque.html','/mosque.mjs','/mosque.json','/data/','/server.mjs'])assert.equal((await fetch(h.base+path)).status,404,path);
 });
 
+test('presentation updates idle SSE state without audio, ownership or subtitle changes',async t=>{
+  const h=await setup(t,{env:{}}),before=await h.snapshot();
+  assert.equal((await h.post('presentation',{textSize:'large',theme:'dark'})).status,200);
+  assert.deepEqual(await h.snapshot(),{...before,presentation:{textSize:'large',theme:'dark'}});
+  const lease=await h.claim('other');assert.ok(lease.generation);assert.equal(h.calls.length,0);
+});
+
+test('presentation respects leases, survives caption writes and resets only with the server',async t=>{
+  const h=await setup(t),session=await h.claim('a');
+  await h.post('state',caption(session));const before=await h.snapshot();
+  assert.equal((await h.post('presentation',{textSize:'large',theme:'dark'})).status,409);
+  assert.equal((await h.post('presentation',{textSize:'large',theme:'dark',owner:'b',generation:session.generation})).status,409);
+  assert.equal((await h.post('presentation',{textSize:'large',theme:'dark',...session,generation:0})).status,409);
+  assert.deepEqual(await h.snapshot(),before);
+  assert.equal((await h.post('presentation',{textSize:'extra-large',theme:'dark',...session})).status,200);
+  await h.post('state',caption(session,{dutch:'Volgende zin',presentation:{textSize:'evil',theme:'evil'}}));
+  assert.deepEqual((await h.snapshot()).presentation,{textSize:'extra-large',theme:'dark'});
+  await h.post('release',session);assert.equal((await h.snapshot()).dutch,'Volgende zin');
+  assert.deepEqual((await h.snapshot()).presentation,{textSize:'extra-large',theme:'dark'});
+  assert.deepEqual((await (await setup(t)).snapshot()).presentation,{textSize:'standard',theme:'light'});
+});
+
+test('presentation rejects unbounded styling, CSRF and cross-origin requests without mutation',async t=>{
+  const h=await setup(t),before=await h.snapshot();
+  for(const data of [null,[],{}, {textSize:80,theme:'dark'},{textSize:'large',theme:'url(evil)'},{textSize:'large',theme:'dark',style:'color:red'},{textSize:'large',theme:'dark',active:true}])
+    assert.equal((await h.post('presentation',data)).status,400);
+  for(const headers of [{Origin:'https://evil.example'},{Origin:''},{'X-App-Token':''},{'Content-Type':'text/plain'},{'Sec-Fetch-Site':'cross-site'}])
+    assert.equal((await h.post('presentation',{textSize:'large',theme:'dark'},headers)).status,403,JSON.stringify(headers));
+  assert.deepEqual(await h.snapshot(),before);assert.equal(h.calls.length,0);
+});
+
+test('presentation cannot renew an active lease or accept an expired generation',async t=>{
+  const h=await setup(t),session=await h.claim();h.advance(14000);
+  assert.equal((await h.post('presentation',{textSize:'large',theme:'dark',...session})).status,200);
+  h.advance(1001);assert.equal((await h.snapshot()).errorCode,'SESSION_EXPIRED');
+  assert.equal((await h.post('presentation',{textSize:'standard',theme:'light',...session})).status,409);
+  assert.deepEqual((await h.snapshot()).presentation,{textSize:'large',theme:'dark'});
+});
+
+test('operator guidance uses the existing audio and screen system without inventing routing',async t=>{
+  const h=await setup(t),html=await fetch(h.base+'/').then(r=>r.text());
+  for(const text of ['Audio-ingang','USB-interface','virtueel apparaat','andere app niet automatisch','Windows','bestaande audioroutering'])assert.ok(html.includes(text),text);
+  const home=await fetch(h.base+'/mosque').then(r=>r.text());
+  assert.ok(home.includes('bestaande schermsysteem'));assert.doesNotMatch(home,/Win\+P|HDMI|Sluit de microfoon/);
+});
+
 test('bootstrap exposes only nonsecret configuration and makes no provider request',async t=>{
   const h=await setup(t);assert.deepEqual(Object.keys(h.boot).sort(),['configured','csrf','region']);
   assert.equal(h.boot.configured,true);assert.equal(h.boot.region,'northeurope');assert.equal(h.calls.length,0);
   assert.doesNotMatch(JSON.stringify(h.boot),/synthetic-secret|preparation/);
-  assert.deepEqual(await h.snapshot(),{dutch:'',arabic:'',mode:'live',phase:'idle',status:'Gereed voor een live proef.',active:false,partial:false,errorCode:null});
+  assert.deepEqual(await h.snapshot(),{dutch:'',arabic:'',mode:'live',phase:'idle',status:'Gereed voor een live proef.',active:false,partial:false,errorCode:null,presentation:{textSize:'standard',theme:'light'}});
 });
 test('exclusive owners, generation rotation, release and expiry cannot accept stale writes',async t=>{
   const h=await setup(t),first=await h.claim('a');

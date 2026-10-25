@@ -67,6 +67,23 @@ button:not(.text-button){min-height:46px;border-radius:9px;padding:11px 16px;fon
 }
 @media(max-width:390px){.app-header{gap:8px;padding-left:18px;padding-right:18px}.brand{gap:9px}.brand-app{padding-left:9px}.platform-return{max-width:80px;text-align:right}}
 
+/* Bounded presentation presets. Long captions reflow and can scroll, never clip or shrink to unreadable text. */
+.presentation-panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 22px;margin-bottom:22px}
+.presentation-panel h2{margin:0 0 4px;font-size:16px}.presentation-panel p{font-size:13px;line-height:1.6;margin:6px 0 14px;color:#465e4f}
+.presentation-fields{display:flex;flex-wrap:wrap;align-items:end;gap:12px}.presentation-fields label{display:grid;gap:5px;font-size:12px;font-weight:600;flex:1;min-width:130px}.presentation-fields select{width:100%;min-height:46px;padding:10px;border:1px solid #c8d7cc;border-radius:8px;background:#fff;color:var(--ink)}
+.presentation-panel #presentation-status{margin:12px 0 6px;font-size:12px}.presentation-panel .presentation-note{margin:0;font-size:11px;color:#52685a}.setup{background:#fff}.setup .small-note{font-size:12px;color:#465e4f}
+.audience{background:#fff;color:#111;overflow:auto;color-scheme:light}
+.audience[data-theme=dark]{background:#101510;color:#fff;color-scheme:dark}
+.audience-main{height:auto;min-height:100svh;grid-template-rows:auto 1fr auto;padding:clamp(22px,4vh,42px) clamp(24px,5vw,80px)}
+.audience-header,.audience-kind,.audience-brand,.audience-brand small,.audience-footer,.audience[data-phase=listening] .audience-footer,.audience[data-phase=translating] .audience-footer{color:inherit}
+.audience[data-phase=error] .audience-footer{color:#a51d2d}.audience[data-theme=dark][data-phase=error] .audience-footer{color:#ffb3bb}
+.audience-brand img{background:#fff;padding:5px;border-radius:5px}.audience-subtitle{color:inherit;max-width:36ch;font-size:clamp(28px,3.7vw,54px);line-height:1.23;letter-spacing:-.025em;min-width:0}
+.audience[data-text-size=large] .audience-subtitle{font-size:clamp(32px,4.3vw,66px)}
+.audience[data-text-size=extra-large] .audience-subtitle{font-size:clamp(36px,5vw,78px)}
+@media(max-width:640px){.presentation-panel{padding:18px}.presentation-fields label{flex-basis:100%}.presentation-fields button{width:100%}.audience-header{gap:12px}.audience-footer{gap:8px}.audience-kind{font-size:12px}}
+
+.audience-tools{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-size:11px;color:inherit}.audience-tools button{min-height:36px;font-size:12px;padding:7px 12px}.audience-tools span{max-width:60ch}.audience-tools:focus-within{outline:none}
+.audio-help{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}.audio-help summary{font-size:12px;color:var(--blue-dark)}.audio-help p{font-size:12px;line-height:1.65;color:#465e4f}
 /* Mosque entrance: reuse ALHOR's local type and assets, without an active speech UI. */
 .mosque-breadcrumb{display:flex;flex-wrap:wrap;align-items:center;gap:12px;font-size:12px;color:var(--muted);margin:0 0 26px}.mosque-breadcrumb a{font-weight:550;text-underline-offset:4px}
 .mosque-home{background:#fafbf9}.mosque-main{max-width:1200px}.mosque-welcome{padding:14px 0 42px;max-width:750px}.mosque-welcome h1{font-size:clamp(30px,4vw,46px);max-width:22ch;letter-spacing:-.045em}.mosque-welcome>p:last-child{font-size:16px;color:var(--muted);max-width:58ch;margin-bottom:0}.section-heading{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:14px}.section-heading h2{margin:0;font-size:15px}.section-heading>span{font-size:12px;color:var(--muted)}

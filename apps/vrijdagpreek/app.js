@@ -19,7 +19,7 @@ function render(state=operator.state){
   $('live-start').disabled=active||choosing||!config?.configured;
   $('live-start').textContent=state.phase==='error'?'Opnieuw starten':'Start vertaling';
   $('stop').disabled=!active&&!meterActive&&!choosing;
-  $('test-mic').textContent=meterActive?'Stop microfoontest':'Test microfoon';
+  $('test-mic').textContent=meterActive?'Stop ingangstest':'Test audio-ingang';
   $('azure-state').textContent=config?.configured?`Azure ingesteld (${config.region})`:config?'Azure niet ingesteld. Voor live spraak: open START-VRIJDAGPREEK.cmd in de repository-root. De Docker-proef configureert geen Azure.':'Lokale app controleren…';
 }
 function stopMeter(){
@@ -36,7 +36,7 @@ async function chooseMicrophone(){
     if(run!==meterRun)return;
     const previous=$('device').value;
     const devices=(await navigator.mediaDevices.enumerateDevices()).filter(device=>device.kind==='audioinput');
-    $('device').replaceChildren(...devices.map((device,index)=>new Option(device.label||`Microfoon ${index+1}`,device.deviceId)));
+    $('device').replaceChildren(...devices.map((device,index)=>new Option(device.label||`Audio-ingang ${index+1}`,device.deviceId)));
     if(devices.some(device=>device.deviceId===previous))$('device').value=previous;
     $('list-mics').textContent='Lijst vernieuwen';
     if(!devices.length)operator.fail('MIC_MISSING');
@@ -70,9 +70,37 @@ $('open-display').onclick=()=>{
   const audience=window.open('/display.html','vrijdagpreek-display','popup,width=1280,height=720');
   if(!audience)$('open-display').textContent='Sta pop-ups toe om het publiekscherm te openen';
 };
-navigator.mediaDevices?.addEventListener('devicechange',()=>{if(!operator.state.active)$('list-mics').textContent='Microfoons gewijzigd · vernieuw lijst';});
+navigator.mediaDevices?.addEventListener('devicechange',()=>{if(!operator.state.active)$('list-mics').textContent='Audio-ingangen gewijzigd · vernieuw lijst';});
 window.addEventListener('pagehide',()=>{stopMeter();void operator.stop();});
 fetch('/api/identity').then(response=>response.json()).then(identity=>{
   $('candidate-status').textContent=identity.state==='identified'?`Versie: ${identity.version}`:'Lokale ontwikkelversie';
 }).catch(()=>{$('candidate-status').textContent='Versie niet bereikbaar';});
 config=await operator.initialize();render();
+// Read-only synchronization must not drive the speech controller or claim a lease.
+const presentationEvents=new EventSource('/api/events');
+let presentationKey=null;
+presentationEvents.onmessage=({data})=>{
+  const {presentation}=JSON.parse(data);
+  if(!presentation)return;
+  const key=JSON.stringify(presentation);
+  if(key!==presentationKey){
+    $('audience-size').value=presentation.textSize;
+    $('audience-theme').value=presentation.theme;
+    presentationKey=key;
+  }
+  $('apply-presentation').disabled=!config;
+  if($('presentation-status').textContent==='Publieksweergave laden…')$('presentation-status').textContent='Weergave verbonden. Kies wat op het bestaande scherm goed leesbaar is.';
+};
+presentationEvents.onerror=()=>{
+  $('apply-presentation').disabled=true;
+  $('presentation-status').textContent='Weergaveverbinding verloren. Laatste publieksinstelling blijft staan; wacht op herstel.';
+};
+$('presentation-form').onsubmit=async event=>{
+  event.preventDefault();$('apply-presentation').disabled=true;
+  try{
+    await operator.api('presentation',{textSize:$('audience-size').value,theme:$('audience-theme').value},operator.session||{});
+    $('presentation-status').textContent='Toegepast op de publieksweergave. Audio en ondertitels zijn niet gewijzigd.';
+  }catch(error){
+    $('presentation-status').textContent=error.code==='OPERATOR_BUSY'?'Niet gewijzigd: een andere operator heeft de bediening. Pas de weergave daar aan.':'Niet toegepast. Controleer de lokale verbinding en probeer opnieuw.';
+  }finally{$('apply-presentation').disabled=!config;}
+};

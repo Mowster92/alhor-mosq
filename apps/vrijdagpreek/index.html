@@ -12,10 +12,11 @@
     <div class="workspace">
       <section class="setup" aria-labelledby="setup-title">
         <h2 id="setup-title">Audio en bediening</h2>
-        <label for="device">Microfoon</label>
-        <select id="device"><option value="">Kies eerst een microfoon</option></select>
-        <div class="input-actions"><button id="list-mics" class="text-button" type="button">Microfoon kiezen</button><button id="test-mic" class="text-button" type="button">Test microfoon</button></div>
-        <div id="meter-panel" class="meter-panel" hidden><label for="level">Microfoonniveau · alleen lokaal</label><meter id="level" min="0" max="100" value="0"></meter><p id="mic-status">Spreek om de ingang te controleren.</p></div>
+        <label for="device">Audio-ingang</label>
+        <select id="device"><option value="">Kies een beschikbare audio-ingang</option></select>
+        <div class="input-actions"><button id="list-mics" class="text-button" type="button">Audio-ingang kiezen</button><button id="test-mic" class="text-button" type="button">Test audio-ingang</button></div>
+        <div id="meter-panel" class="meter-panel" hidden><label for="level">Ingangsniveau · alleen lokaal</label><meter id="level" min="0" max="100" value="0"></meter><p id="mic-status">Spreek om de ingang te controleren.</p></div>
+        <details class="audio-help"><summary>Welke audio-ingang kies ik?</summary><p>Gebruik de bestaande geluidsinstallatie. Een ingang kan een microfoon, USB-interface of virtueel apparaat van de geïnstalleerde geluidsapp zijn. Alleen ingangen die de browser aanbiedt kunnen hier worden gekozen; deze app vangt geluid uit een andere app niet automatisch op.</p><p>Controleer met de beheerder in Windows de microfoonprivacy (ook voor desktop-apps), browsertoestemming en het bedoelde invoerapparaat. Ververs daarna de lijst. Verander de werkende bestaande audioroutering niet. De lokale niveautest gebruikt de gekozen ingang, zonder Azure.</p></details>
         <label for="language">Gesproken Arabisch</label>
         <select id="language"><option value="ar-SA">Standaard Arabisch</option><option value="ar-MA">Marokkaans Arabisch</option><option value="ar-EG">Egyptisch Arabisch</option></select>
         <label class="consent"><input id="consent" type="checkbox"><span>Audio mag tijdens de vertaling naar Microsoft Azure worden gestuurd.</span></label>
@@ -24,6 +25,16 @@
         <p class="small-note">Audio wordt alleen na Start verstuurd. Er wordt hier geen opname opgeslagen. Stop de vertaling voordat je naar Mosque home gaat.</p>
       </section>
       <section class="translation-workspace" aria-labelledby="caption-title">
+        <section class="presentation-panel" aria-labelledby="presentation-title">
+          <div><h2 id="presentation-title">Leesbaarheid publiek</h2><p>Alleen de weergave. Dit start geen audio of vertaling.</p></div>
+          <form id="presentation-form"><div class="presentation-fields">
+            <label for="audience-size">Tekstgrootte<select id="audience-size"><option value="standard">Standaard</option><option value="large">Groot</option><option value="extra-large">Extra groot</option></select></label>
+            <label for="audience-theme">Contrast<select id="audience-theme"><option value="light">Licht · zwarte tekst</option><option value="dark">Donker · witte tekst</option></select></label>
+            <button id="apply-presentation" class="secondary" type="submit" disabled>Weergave toepassen</button>
+          </div></form>
+          <p id="presentation-status" role="status" aria-live="polite">Publieksweergave laden…</p>
+          <p class="presentation-note">Geldt voor alle publieksvensters tot de lokale server herstart. Niet op schijf bewaard. Gebruik Volledig scherm in het publieksvenster; Esc sluit dat af.</p>
+        </section>
         <div id="connection" class="connection" data-phase="idle" role="status" aria-live="polite"><span class="status-dot" aria-hidden="true"></span><span id="status">Klaar om te starten</span></div>
         <div id="error-panel" class="error-panel" role="alert" hidden><h2>Vertaling gestopt</h2><p id="error-message"></p><details><summary>Foutcode</summary><code id="error-code"></code></details></div>
         <article class="caption-preview"><div class="caption-heading"><h2 id="caption-title">Nederlandse ondertiteling</h2><span id="caption-kind"></span></div><p id="dutch" class="dutch placeholder">Hier verschijnt de vertaling zodra je spreekt.</p><button id="clear" class="text-button" type="button">Tekst wissen</button></article>

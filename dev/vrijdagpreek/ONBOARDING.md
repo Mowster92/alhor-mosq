@@ -50,14 +50,45 @@ containerpoort en fictieve Portal-links; netwerk staat uit. Geen spraakfixture,
 microfoon of provider. Controleert Portal → home → operator → home, herladen,
 no-referrer, lokale assets en 390/1280px. Receipt:
 `results/vrijdagpreek-agent/screenshots/mosque-browser-report.json` (lokale output).
-Maandag blijven echte microfoon, HDMI/Win+P Uitbreiden, Azure-configuratie en
-vertaalkwaliteit afzonderlijke controles met de operator.
+Maandag blijven de bestaande browseraudio-ingang, het bestaande schermsysteem,
+Azure-configuratie en vertaalkwaliteit afzonderlijke controles met de operator.
+De moskee heeft al werkende audio/schermen; HDMI/Win+P of USB-B zijn geen
+bevestigde topologie. Controleer of het browserpublieksvenster getoond kan worden;
+verander de werkende audioroutering niet.
 
 Bij UI-wijzigingen: operator en publiek controleren, ook lange tekst, foutstatus
 en klein venster. Bestaande geïsoleerde browserroute:
 `docker compose -f dev/vrijdagpreek/compose.yaml run --build --rm browser`.
 Die gebruikt fictieve tekst en gesimuleerde spraak; inspecteer de screenshots in
 `results/vrijdagpreek-agent/screenshots`. Geen echte Azure/microfoon nodig voor cleanup.
+
+## Leesbaarheid en geïsoleerde regressie
+
+Drie vaste publiekstekstgroottes en licht/donker contrast worden via SSE gedeeld.
+`POST /api/presentation` gebruikt dezelfde exacte Origin/Host/CSRF-controles.
+Zonder lease zijn alleen presentatievelden toegestaan; met lease zijn huidige
+owner én generation nodig. Het pad claimt/ververst/beëindigt geen lease, publiceert
+geen spraakstatus en vraagt geen provider of audio. Gewone captionwrites kunnen
+presentatie niet overschrijven. Alleen servergeheugen; geen diskpersistentie.
+
+```text
+docker compose -f dev/vrijdagpreek/compose.yaml run --rm -e NODE_PATH=/qa/node_modules browser node /source/dev/vrijdagpreek/presentation-browser-check.cjs
+```
+
+Deze Chromium/Firefox-proef gebruikt uitsluitend interne testcaptions via de
+beschermde state-API, zonder microfoon of provider. Geen productdemo of
+voorbereide-tekstfunctie toegevoegd. Twee echte pagina's controleren SSE,
+herladen, leaseweigering, onverstuurde keuzes bij captionupdates, fullscreen
+(werkelijke enter/exit indien ondersteund en geïnjecteerde unsupported/afwijzing),
+3 groottes × 2 thema's × 390/1280/1920px en 3000 tekens zonder horizontale
+overloop of afgeknipte tekst. Zeer lange tekst mag verticaal scrollen. Receipt:
+`results/vrijdagpreek-agent/screenshots/presentation-browser-report.json`.
+Screenshots en receipts zijn lokale uitvoer, geen broncommit.
+
+Echte acceptatie: minstens 10 minuten spraak (tokenverversing), bekende Arabische
+zinnen/menselijke beoordeling, internetuitval/handmatige herstart en Stop tijdens
+toestemming. Niet bewezen door gesimuleerde browsers. Runtime-activering blijft
+bij de integratie-eigenaar; geen portable setup in deze leesbaarheidspass.
 
 ## Bewaarde werking en historie
 

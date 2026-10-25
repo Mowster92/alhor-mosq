@@ -36,7 +36,7 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
   const portalHome=`http://127.0.0.1:${Number(portalPort)}/`;
   const portalContexts={docker:'http://127.0.0.1:18080/',local:'http://127.0.0.1:18180/'};
   const portalEntries=['http://127.0.0.1:19818/',...Object.values(portalContexts),portalHome];
-  let state={dutch:'',arabic:'',mode:'live',phase:'idle',status:'Gereed voor een live proef.',active:false,partial:false,errorCode:null};
+  let state={dutch:'',arabic:'',mode:'live',phase:'idle',status:'Gereed voor een live proef.',active:false,partial:false,errorCode:null,presentation:{textSize:'standard',theme:'light'}};
   let owner=null,seen=0,generation=0;
   const region=env.AZURE_SPEECH_REGION||'westeurope';
   const configured=Boolean(env.AZURE_SPEECH_KEY&&REGIONS.includes(region));
@@ -104,6 +104,15 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
             return reply(200,{id:item.id,body:item.body,createdAt:item.createdAt});
           }catch(cause){return error(cause?.code==='FEEDBACK_FULL'?507:503,cause?.code==='FEEDBACK_FULL'?'FEEDBACK_FULL':'FEEDBACK_UNAVAILABLE');}
         }
+        if(path==='/api/presentation'){
+          if(!data||typeof data!=='object'||Array.isArray(data)||!['standard','large','extra-large'].includes(data.textSize)
+            ||!['light','dark'].includes(data.theme)||Object.keys(data).some(key=>!['textSize','theme','owner','generation'].includes(key)))return error(400,'INVALID_REQUEST');
+          // Presentation never claims, renews or releases the audio lease.
+          if(owner&&(data.owner!==owner||data.generation!==generation))return error(409,'OPERATOR_BUSY');
+          if(!owner&&(data.owner!==undefined||data.generation!==undefined))return error(409,'SESSION_EXPIRED');
+          state={...state,presentation:{textSize:data.textSize,theme:data.theme}};
+          broadcast();return reply(200,{ok:true});
+        }
         if(!data||typeof data!=='object'||Array.isArray(data)||typeof data.owner!=='string'||!data.owner||data.owner.length>80)return error(400,'INVALID_REQUEST');
         if(owner&&owner!==data.owner)return error(409,'OPERATOR_BUSY');
         if(path==='/api/claim'){owner=data.owner;seen=now();generation++;return reply(200,{generation});}
@@ -116,7 +125,7 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
             ||!phases.has(phase)||typeof active!=='boolean'||active!==runningPhases.has(phase)
             ||typeof partial!=='boolean'||(errorCode!==null&&(typeof errorCode!=='string'||!/^[A-Z][A-Z0-9_]{1,63}$/.test(errorCode))))
             return error(400,'INVALID_REQUEST');
-          state={dutch:dutch.slice(0,3000),arabic:arabic.slice(0,3000),status:status.slice(0,180),mode:'live',phase,active,partial,errorCode};
+          state={presentation:state.presentation,dutch:dutch.slice(0,3000),arabic:arabic.slice(0,3000),status:status.slice(0,180),mode:'live',phase,active,partial,errorCode};
           broadcast();return reply(200,{ok:true});
         }
         if(path==='/api/release'){

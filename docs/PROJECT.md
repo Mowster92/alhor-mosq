@@ -36,6 +36,26 @@ onderbroken en onbekende processen worden niet vervangen. Runtime-activering,
 apparatuur en echte vertaalproef worden apart gedaan; broncontrole bewijst
 geen live gereedheid of vertaalkwaliteit.
 
+## Vrijdagpreek — begrensde leesbaarheidspass
+
+De operator kiest drie vaste publiekstekstgroottes en licht/donker hoog contrast.
+De bestaande SSE-state deelt `presentation`; de aparte beschermde
+`POST /api/presentation` wijzigt alleen die twee gevalideerde enums. Geen vrije
+CSS, geen nieuwe lease, geen leaseverversing, audio, token, consent of spraakstatus.
+Tijdens een bestaande lease zijn exacte owner/generation vereist; andere
+operators worden geweigerd zonder de sessie te beïnvloeden. Captionwrites
+bewaren presentatie. Alleen servergeheugen: Stop/herladen bewaren de keuzes,
+serverherstart herstelt Standaard/Licht. Volledig scherm is een echte lokale
+browseractie met toetsenbordbediening en zichtbare unsupported/foutmelding.
+
+App en onboarding verwijzen naar de reeds werkende geluidsapp en schermen;
+exacte audio/schermtopologie is onbekend. Browseringangen kunnen microfoon,
+USB-interface of virtueel apparaat zijn; geen automatische app-audiocapture.
+Geen voorbereide-tekstbediening heringevoerd. De browserregressie gebruikt
+uitsluitend interne testcaptions. Portable setup en runtime-activering zitten
+niet in deze bronpass. Herstelvergelijking met de oorspronkelijke OpenClaw-app
+loopt apart bij de eigenaar vóór verdere releasekeuzes.
+
 ## Actuele Vrijdagpreek-stand — 15 oktober 2026
 
 Mo heeft Vrijdagpreek laten vereenvoudigen tot live Arabisch → Nederlands.
