@@ -2,6 +2,16 @@
 
 ## Actuele ingangen
 
+- Canonieke Mosque-home: `http://127.0.0.1:8080/mosque?portal=local` of
+  `?portal=docker`. Alleen Vrijdagpreek is beschikbaar, via `/`; operator en
+  `/display.html` blijven behouden. Home ↔ module bewaart de vaste Portal-context.
+- Portal mag `windows-app.ps1 -Action ensure-home` aanroepen: broncontrole en
+  eigen service zonder Azure-configuratievenster. Controleer daarna de exacte
+  huidige `/api/identity`; `configured=false` blokkeert home niet. Gewone
+  `ensure` blijft de spraakingang met Azure-configuratie. Geen onbekende processen
+  vervangen, geen actieve vertaling onderbreken. De bronmanifest-selectie neemt
+  nieuwe statische appbestanden, waaronder `mosque.html`, automatisch mee.
+
 - `MOSQUE-LOCAL.cmd`: lokale Docker-app op 18182, terug naar Portal op 18180.
   `up`, `status` en `stop` werken zonder agent. Deze proef configureert geen Azure.
 - `START-VRIJDAGPREEK.cmd`: Windows-spraakapp op 8080 met de bestaande beschermde
@@ -26,6 +36,22 @@ Vanuit de appmap: `npm test`, `npm run check`. De bestaande
 exacte gewijzigde werkbestanden; `candidate.json` is gegenereerd. Activeer daarna
 de gekozen lokale runtime. De Windows-controller onderbreekt geen actieve vertaling.
 Repositorycontrole vanaf root: `python scripts/check_repository.py`.
+
+De Windows-only test in `npm test` draait de geïsoleerde
+`dev/vrijdagpreek/windows-home.test.ps1` met vervangende proces/configuratiefuncties;
+die start geen runtime en leest geen echte instelling. De no-audio browserproef:
+
+```text
+docker compose -f dev/vrijdagpreek/compose.yaml run --rm -e NODE_PATH=/qa/node_modules browser node /source/dev/vrijdagpreek/mosque-browser-check.cjs
+```
+
+Deze geïsoleerde Chromium/Firefox-proef gebruikt een service op een tijdelijke
+containerpoort en fictieve Portal-links; netwerk staat uit. Geen spraakfixture,
+microfoon of provider. Controleert Portal → home → operator → home, herladen,
+no-referrer, lokale assets en 390/1280px. Receipt:
+`results/vrijdagpreek-agent/screenshots/mosque-browser-report.json` (lokale output).
+Maandag blijven echte microfoon, HDMI/Win+P Uitbreiden, Azure-configuratie en
+vertaalkwaliteit afzonderlijke controles met de operator.
 
 Bij UI-wijzigingen: operator en publiek controleren, ook lange tekst, foutstatus
 en klein venster. Bestaande geïsoleerde browserroute:

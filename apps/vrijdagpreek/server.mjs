@@ -9,6 +9,7 @@ export const REGIONS=['westeurope','northeurope','eastus','westus','eastus2','we
 const root=new URL('./',import.meta.url);
 const files=new Map(['index.html','display.html','app.js','operator.js','live.js','display.js','feedback.js','styles.css','alhor-p1.svg','InterVariable.woff2','Inter-OFL.txt'].map(name=>['/'+name,name]));
 files.set('/','index.html');
+files.set('/mosque','mosque.html');
 files.set('/sdk.js','node_modules/microsoft-cognitiveservices-speech-sdk/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js');
 files.set('/speech-processor.js','node_modules/microsoft-cognitiveservices-speech-sdk/distrib/browser/speech-processor.js');
 const phases=new Set(['idle','starting','listening','translating','stopped','error']);
@@ -57,7 +58,7 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
     res.setHeader('Referrer-Policy','no-referrer');res.setHeader('X-Frame-Options','DENY');
     res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' https://*.speech.microsoft.com wss://*.speech.microsoft.com; worker-src 'self' blob:; media-src 'self' blob:; object-src 'none'; frame-ancestors 'none'; base-uri 'none'");
     const path=req.url?.split('?')[0];
-    const platformPageEntry=req.method==='GET'&&['/','/index.html','/display.html'].includes(path)
+    const platformPageEntry=req.method==='GET'&&['/','/index.html','/display.html','/mosque'].includes(path)
       &&['same-site','cross-site'].includes(req.headers['sec-fetch-site'])
       &&req.headers['sec-fetch-mode']==='navigate'&&req.headers['sec-fetch-dest']==='document'
       &&req.headers['sec-fetch-user']==='?1'
@@ -149,12 +150,16 @@ export function createApp({env=process.env,fetcher=fetch,candidateRoot,now=Date.
         :filename.endsWith('.css')?'text/css':filename.endsWith('.svg')?'image/svg+xml'
         :filename.endsWith('.woff2')?'font/woff2':filename.endsWith('.txt')?'text/plain; charset=utf-8':'text/javascript';
       let bytes=await readFile(new URL(filename,root));
-      if(filename==='index.html'){
+      if(filename==='index.html'||filename==='mosque.html'){
         // Only named local entrances may select a return target; never accept a URL.
         const context=new URL(req.url,origin).searchParams.get('portal');
         const selectedHome=Object.hasOwn(portalContexts,context)?portalContexts[context]:null;
         const returnHome=selectedHome?`${selectedHome}app/operating/?return=vrijdagpreek`:(env.ALHOR_PORTAL_PORT?portalHome:null);
         if(returnHome)bytes=Buffer.from(bytes.toString('utf8').replace('class="platform-return" href="http://127.0.0.1:19818/"',`class="platform-return" href="${returnHome}"`));
+        if(selectedHome){
+          const suffix=`?portal=${context}`;
+          bytes=Buffer.from(bytes.toString('utf8').replace('class="module-open" href="/"',`class="module-open" href="/${suffix}"`).replace('class="mosque-return" href="/mosque"',`class="mosque-return" href="/mosque${suffix}"`));
+        }
       }
       res.writeHead(200,{'Content-Type':mime});res.end(bytes);
     }catch{if(!res.headersSent)error(500,'INVALID_REQUEST');else res.end();}

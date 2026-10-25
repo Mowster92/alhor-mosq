@@ -42,6 +42,7 @@ test('new untracked app files enter the manifest, while private data and runtime
   const h=fixture(t);h.activate();h.checks.length=0;
   mkdirSync(join(h.root,'scripts'));writeFileSync(join(h.root,'operator.js'),'// new untracked operator\n');
   writeFileSync(join(h.root,'scripts','new-helper.mjs'),'// new untracked helper\n');
+  writeFileSync(join(h.root,'mosque.html'),'<!doctype html><title>Synthetic Mosque home</title>');
   for(const name of ['data','private','results','node_modules']){
     mkdirSync(join(h.root,name));writeFileSync(join(h.root,name,'not-source.json'),'synthetic private fixture');
   }
@@ -49,7 +50,7 @@ test('new untracked app files enter the manifest, while private data and runtime
   writeFileSync(join(h.root,'local.wav'),'synthetic recording');
   writeFileSync(join(h.root,'notes.md'),'operator notes');
   const result=h.activate(),names=Object.keys(result.candidate.source_manifest);
-  assert.deepEqual(names,['app.js','operator.js','scripts/new-helper.mjs','server.mjs']);
+  assert.deepEqual(names,['app.js','mosque.html','operator.js','scripts/new-helper.mjs','server.mjs']);
   assert.deepEqual(h.checks,['test','run check']);h.checks.length=0;
   writeFileSync(join(h.root,'data','not-source.json'),'changed synthetic private fixture');
   assert.equal(h.activate().changed,false);assert.deepEqual(h.checks,[]);

@@ -6,6 +6,38 @@ Bron: `Mowster92/alhor-mosq`, `apps/vrijdagpreek`. De bestaande Azure Speech-kop
 
 ## Starten op Windows
 
+### Mosque home: de ingang voor maandag
+
+Open via ALHOR **Mosque**: `http://127.0.0.1:8080/mosque?portal=local`
+(Portal 18180) of `?portal=docker` (Portal 18080). Canoniek pad: **GET `/mosque`**.
+Home opent zonder microfoon, audio of Azure-configuratie. Alleen Vrijdagpreek is
+beschikbaar; **Open Vrijdagpreek** gaat naar `/` met dezelfde vaste context.
+De operator biedt **Mosque home** terug; klik eerst **Stop** als er vertaald wordt.
+`/`, `/index.html` en `/display.html` blijven compatibel. `/mosque.html` is geen route.
+
+De Portal-controller gebruikt hiervoor vanaf de repository-root:
+
+```powershell
+pwsh -NoProfile -File dev/vrijdagpreek/windows-app.ps1 -Action ensure-home
+```
+
+Dit bereidt en controleert de bron en hergebruikt/start uitsluitend de eigen
+lokale service, zonder configuratievenster als de Azure-instelling ontbreekt.
+Een bestaande versleutelde instelling wordt normaal gebruikt; een onleesbare
+instelling geeft een melding en wordt niet vervangen. De shell is gereed bij
+exacte huidige bronidentiteit, ook met `configured=false`. De gewone
+`ensure`/`open`/`restart`-spraakroute blijft Azure vereisen. Geen actieve vertaling
+of onbekend proces wordt gestopt. Home is geen bewijs dat live vertalen klaar is.
+
+Maandag: Windows-pc met Node.js 22+ en PowerShell 7, microfoon aansluiten,
+publiekscherm met Win+P op **Uitbreiden**, publieksvenster daarheen verplaatsen.
+Controleer lokaal de gereedheid met de beheerder. Zonder Azure kun je de app
+bekijken maar niet live vertalen. Microfoontest en echte vertaalproef vragen
+bewuste bediening/toestemming; beoordeel de kwaliteit met een
+Arabisch/Nederlands-spreker. Geen ledengegevens of sleutels invoeren in meldingen.
+
+### Bestaande spraakingang
+
 Node.js 22 of nieuwer en PowerShell 7 zijn nodig. Dubbelklik **START-VRIJDAGPREEK.cmd** in de repository-root, of gebruik de expliciete **Windows speech app**-ingang in lokale Portal; de Windows Portal op 18080 heeft zijn eigen bewaakte Open-route. De rootstarter en de bewaakte Open-route op 18080 gebruiken dezelfde Windows-controller; de alternatieve link op 18180 opent alleen een al gestarte app: juiste instantie hergebruiken, gewijzigde bron controleren en activeren, gereedheid bevestigen en pas dan openen. De bridge wordt door Portal automatisch gestart.
 
 Alleen bij de eerste start verschijnt een apart venster voor regio (hier `northeurope`) en verborgen sleutel. Windows bewaart die versleuteld voor jouw gebruikersaccount op deze pc, buiten Git en de agent-sandbox. Daarna gaat de starter zelf verder. De vensters van de starter mogen sluiten; de app blijft draaien. Gebruik deze ene Windows-ingang; verwijderde dubbele launchers zijn via Git terug te vinden. Voor de afzonderlijke Docker-proef op 18182 gebruik je `MOSQUE-LOCAL.cmd` in de repository-root; die configureert geen Azure en start geen audio.

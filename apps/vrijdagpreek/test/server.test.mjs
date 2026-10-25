@@ -26,6 +26,27 @@ async function setup(t,{env={AZURE_SPEECH_REGION:'northeurope',AZURE_SPEECH_KEY:
 }
 const caption=(session,changes={})=>({...session,arabic:'كلمات اختبار',dutch:'Nederlandse proeftekst',mode:'live',phase:'translating',active:true,partial:false,status:'Live — vertaling',...changes});
 
+test('Mosque home is a Dutch, passive shell with one module and safe contextual navigation',async t=>{
+  const h=await setup(t,{env:{}});
+  for(const [query,suffix,portal] of [['?portal=local','?portal=local','http://127.0.0.1:18180/app/operating/?return=vrijdagpreek'],['?portal=docker','?portal=docker','http://127.0.0.1:18080/app/operating/?return=vrijdagpreek'],['?portal=constructor','','http://127.0.0.1:19818/'],['?portal=https://evil.example','','http://127.0.0.1:19818/']]){
+    const response=await fetch(h.base+'/mosque'+query);assert.equal(response.status,200);
+    assert.match(response.headers.get('content-type'),/text\/html/);
+    assert.equal(response.headers.get('referrer-policy'),'no-referrer');
+    const html=await response.text();
+    assert.match(html,/<html lang="nl">/);assert.match(html,/<h1>.*moskee/);
+    assert.ok(html.includes(`class="module-open" href="/${suffix}"`));
+    assert.ok(html.includes(`class="platform-return" href="${portal}"`));
+    assert.match(html,/Vrijdagpreek/);assert.match(html,/Maandag/);
+    assert.match(html,/Nog niet gebouwd/);assert.doesNotMatch(html,/<script|evil\.example|constructor/);
+    const operator=await fetch(h.base+'/'+suffix).then(r=>r.text());
+    assert.ok(operator.includes(`class="mosque-return" href="/mosque${suffix}"`));
+    assert.match(operator,/Stop.*voordat je.*Mosque home/s);
+  }
+  assert.equal(h.calls.length,0);assert.equal((await h.snapshot()).active,false);
+  assert.equal((await fetch(h.base+'/display.html')).status,200);
+  for(const path of ['/mosque/','/mosque.html','/mosque.mjs','/mosque.json','/data/','/server.mjs'])assert.equal((await fetch(h.base+path)).status,404,path);
+});
+
 test('bootstrap exposes only nonsecret configuration and makes no provider request',async t=>{
   const h=await setup(t);assert.deepEqual(Object.keys(h.boot).sort(),['configured','csrf','region']);
   assert.equal(h.boot.configured,true);assert.equal(h.boot.region,'northeurope');assert.equal(h.calls.length,0);
@@ -100,7 +121,10 @@ test('clicked Portal entry works for Firefox/Chromium without permitting cross-s
   const navigate=(path,headers,method='GET')=>new Promise((resolve,reject)=>{const req=request(h.base+path,{method,headers},res=>{res.resume();res.on('end',()=>resolve(res.statusCode));});req.on('error',reject);req.end();});
   for(const referer of ['http://127.0.0.1:19818/','http://127.0.0.1:18080/','http://127.0.0.1:18180/'])for(const site of ['same-site','cross-site']){
     const headers={'Sec-Fetch-Site':site,'Sec-Fetch-Mode':'navigate','Sec-Fetch-Dest':'document','Sec-Fetch-User':'?1',Referer:referer};
-    for(const path of ['/','/display.html'])assert.equal(await navigate(path,headers),200);
+    for(const path of ['/','/display.html','/mosque?portal=local'])assert.equal(await navigate(path,headers),200);
+    for(const path of ['/mosque/','/mosque.html','/styles.css','/server.mjs','/api/bootstrap'])assert.equal(await navigate(path,headers),403);
+    assert.equal(await navigate('/mosque',headers,'POST'),403);
+    for(const changes of [{'Sec-Fetch-User':''},{'Sec-Fetch-Mode':'cors'},{'Sec-Fetch-Dest':'iframe'},{Referer:'http://127.0.0.1:18080/app/operating/'},{Referer:'https://evil.example/'},{Origin:'https://evil.example'},{Host:'localhost'}])assert.equal(await navigate('/mosque',{...headers,...changes}),403);
     for(const path of ['/api/events','/sdk.js'])assert.equal(await navigate(path,headers),403);
     for(const changes of [{'Sec-Fetch-User':''},{'Sec-Fetch-Mode':'cors'},{'Sec-Fetch-Dest':'iframe'},{Referer:'http://127.0.0.1:18081/'},{Origin:'https://evil.example'}])assert.equal(await navigate('/',{...headers,...changes}),403);
   }

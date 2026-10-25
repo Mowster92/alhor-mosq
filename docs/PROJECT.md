@@ -1,3 +1,29 @@
+## Mosque home — lokale hervatting voor maandag
+
+Mo heeft de lokale Mosque-home → Vrijdagpreek-route hervat en goedgekeurd.
+De bestaande Node-service krijgt **GET `/mosque`** als canonieke Mosque-ingang.
+`/` en `/index.html` blijven de bestaande operator; `/display.html` blijft het
+publiekscherm. Alleen Vrijdagpreek is beschikbaar. Gebedstijden, ledenbeheer,
+activiteiten en andere voorgestelde modules zijn niet gebouwd.
+
+Hergebruik: ALHOR-logo, lokaal Inter-lettertype, Node-server en bestaande
+spraakbediening. Geen nieuw framework, database, login of provider. Home is
+statische HTML zonder scripts en opent geen microfoon. De navigatie bewaart
+alleen de vaste context `?portal=local` (18180) of `?portal=docker` (18080),
+nooit een opgegeven URL. Alleen `/mosque` is aan de exacte statische en
+Portal-documentnavigatie-allowlists toegevoegd; Host/Origin/CSRF, toestemming,
+operatorlease en privacylijnen blijven intact. Stop vóór terugkeer naar home.
+
+Voor de ingang zonder Azure-configuratievenster gebruikt Portal de bestaande
+Windows-controller met `-Action ensure-home`. Deze controleert/bereidt de bron,
+gebruikt een eventueel bestaande beschermde Azure-instelling en start anders
+alleen de lokale shell. Exacte actuele bronidentiteit en procesbezit zijn nodig;
+`configured=true` is geen voorwaarde voor home. Gewone `ensure`/`open` blijven
+de bestaande spraakingang met Azure-configuratie. Actieve vertaling wordt niet
+onderbroken en onbekende processen worden niet vervangen. Runtime-activering,
+apparatuur en echte vertaalproef worden apart gedaan; broncontrole bewijst
+geen live gereedheid of vertaalkwaliteit.
+
 ## Actuele Vrijdagpreek-stand — 15 oktober 2026
 
 Mo heeft Vrijdagpreek laten vereenvoudigen tot live Arabisch → Nederlands.

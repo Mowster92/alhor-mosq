@@ -1,4 +1,4 @@
-param([ValidateSet('ensure','open','restart','stop','status','configure')][string]$Action='ensure')
+param([ValidateSet('ensure','ensure-home','open','restart','stop','status','configure')][string]$Action='ensure')
 if($MyInvocation.InvocationName -ne '.' -and $PSVersionTable.PSVersion.Major -lt 7){
     & pwsh.exe -NoProfile -ExecutionPolicy RemoteSigned -File $PSCommandPath -Action $Action
     exit $LASTEXITCODE
@@ -100,9 +100,16 @@ function Test-OwnedProcess($Record,$Process,[int]$ListenerId,[string]$AppRoot) {
     } catch { return $false }
 }
 
-function Get-StartDecision($Expected,$Status) {
+function Test-AppReadiness($Expected,$Identity,$Bootstrap,[switch]$HomeOnly) {
+    return $Expected.state -eq 'identified' -and $Identity.state -eq 'identified' -and
+        $Identity.version -eq $Expected.version -and $Identity.source_digest -eq $Expected.source_digest -and
+        ($HomeOnly -or $Bootstrap.configured -eq $true)
+}
+
+function Get-StartDecision($Expected,$Status,[switch]$HomeOnly) {
     if (!$Status.listening) { return 'start' }
-    if ($Expected.state -eq 'identified' -and $Status.identified -and $Status.configured -eq $true -and
+    if ($HomeOnly -and !$Status.owned) { return 'refuse' }
+    if ($Expected.state -eq 'identified' -and $Status.identified -and ($HomeOnly -or $Status.configured -eq $true) -and
         $Status.version -eq $Expected.version -and $Status.source_digest -eq $Expected.source_digest) { return 'reuse' }
     if (!$Status.owned) { return 'refuse' }
     if ($Status.active -ne $false) { return 'busy' }
@@ -225,18 +232,23 @@ function Stop-OwnedApp($Paths) {
     throw 'Vrijdagpreek is nog niet afgesloten. Er is geen tweede instantie gestart.'
 }
 
-function Start-OwnedApp($Paths,$Candidate,[pscredential]$Credential) {
+function Start-OwnedApp($Paths,$Candidate,[pscredential]$Credential,[switch]$HomeOnly) {
     New-PrivateDirectory $Paths.StateRoot
     $start=[Diagnostics.ProcessStartInfo]::new()
     $start.FileName=(Get-Command node -ErrorAction Stop).Source
     $start.ArgumentList.Add((Join-Path $Paths.AppRoot 'server.mjs'))
     $start.WorkingDirectory=$Paths.AppRoot;$start.UseShellExecute=$false;$start.CreateNoWindow=$true
-    $start.Environment['AZURE_SPEECH_REGION']=$Credential.UserName
+    # Never inherit an unrelated shell's Azure secrets for an unconfigured home.
+    $start.Environment.Remove('AZURE_SPEECH_REGION')|Out-Null
+    $start.Environment.Remove('AZURE_SPEECH_KEY')|Out-Null
+    if($Credential){$start.Environment['AZURE_SPEECH_REGION']=$Credential.UserName}
     $start.Environment['ALHOR_FEEDBACK_FILE']=(Join-Path $Paths.StateRoot 'feedback.json')
     $pointer=[IntPtr]::Zero
     try {
-        $pointer=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($Credential.Password)
-        $start.Environment['AZURE_SPEECH_KEY']=[Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer)
+        if($Credential){
+            $pointer=[Runtime.InteropServices.Marshal]::SecureStringToBSTR($Credential.Password)
+            $start.Environment['AZURE_SPEECH_KEY']=[Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer)
+        }elseif(!$HomeOnly){throw 'Azure is nog niet ingesteld.'}
         # The short runner passes real file handles to Node. No pipe depends on this launcher staying open.
         $start.ArgumentList.Clear()
         $start.ArgumentList.Add((Join-Path $PSScriptRoot 'windows-child.mjs'))
@@ -261,7 +273,7 @@ function Start-OwnedApp($Paths,$Candidate,[pscredential]$Credential) {
             $identity=Get-LocalJson $Paths.Url
             if($identity.state -eq 'identified' -and $identity.version -eq $Candidate.version -and $identity.source_digest -eq $Candidate.source_digest){
                 $bootstrap=Get-LocalJson $Paths.Url -Bootstrap
-                if($bootstrap.configured -eq $true){
+                if(Test-AppReadiness $Candidate $identity $bootstrap -HomeOnly:$HomeOnly){
                     $listeners=@(Get-NetTCPConnection -LocalPort ([uri]$Paths.Url).Port -State Listen -ErrorAction SilentlyContinue|Select-Object -ExpandProperty OwningProcess -Unique)
                     if($listeners.Count -eq 1 -and $listeners[0] -eq $child.pid){return}
                     throw 'De poort hoort niet bij de zojuist gestarte app. Er wordt geen ander proces gestopt.'
@@ -269,7 +281,7 @@ function Start-OwnedApp($Paths,$Candidate,[pscredential]$Credential) {
             }
             Start-Sleep -Milliseconds 250
         }
-        throw 'De app bevestigde niet op tijd de nieuwe bronversie en Azure-instelling. Er is geen extra instantie gestart.'
+        throw 'De app bevestigde niet op tijd de vereiste bronversie en gereedheid. Er is geen extra instantie gestart.'
     } finally {
         $start.Environment.Remove('AZURE_SPEECH_KEY')|Out-Null
         if($pointer -ne [IntPtr]::Zero){[Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer)}
@@ -295,22 +307,23 @@ function Invoke-AppAction([string]$RequestedAction) {
         if($RequestedAction -eq 'stop'){Stop-OwnedApp $paths;Write-Host 'Vrijdagpreek is gestopt. Opgeslagen werk en Azure-instelling blijven bewaard.';return}
         $expected=Get-ExpectedCandidate $paths
         $status=Get-RuntimeStatus $paths
-        $decision=Get-StartDecision $expected $status
+        $homeOnly=$RequestedAction -eq 'ensure-home'
+        $decision=Get-StartDecision $expected $status -HomeOnly:$homeOnly
         if($RequestedAction -eq 'restart' -and $decision -eq 'reuse'){
             if(!$status.owned){$decision='refuse'}elseif($status.active -ne $false){$decision='busy'}else{$decision='replace'}
         }
         if($decision -eq 'refuse'){throw 'Poort 8080 is in gebruik door een niet-beheerde of onbekende instantie. Er is niets gestopt; sluit die instantie bewust af voordat je opnieuw opent.'}
         if($decision -eq 'busy'){throw 'De vertaling is actief of niet bereikbaar. Klik eerst Stop in Vrijdagpreek; open daarna opnieuw om de nieuwe versie te activeren.'}
         if($decision -ne 'reuse'){
-            Wait-AzureConfiguration $paths
+            if(!$homeOnly){Wait-AzureConfiguration $paths}
             $credential=Read-AzureCredential $paths
-            if(!$credential){throw 'Azure is nog niet ingesteld.'}
+            if(!$credential -and !$homeOnly){throw 'Azure is nog niet ingesteld.'}
             try {
                 $expected=Prepare-AppSource $paths
                 # A new operator may have started while setup/tests were running; recheck before stopping.
                 if((Get-RuntimeStatus $paths).listening){Stop-OwnedApp $paths}
-                Start-OwnedApp $paths $expected $credential
-            } finally {$credential.Password.Dispose()}
+                Start-OwnedApp $paths $expected $credential -HomeOnly:$homeOnly
+            } finally {if($credential){$credential.Password.Dispose()}}
         }
         Write-Host ('Vrijdagpreek gereed: '+$paths.Url+' ['+$expected.version+']')
         if($RequestedAction -eq 'open'){Start-Process ($paths.Url+'?portal=docker')|Out-Null}
